@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -17,7 +16,10 @@ p.sub{margin:0 0 12px;color:var(--muted);font-size:14px;text-align:center}
 canvas{width:100%;height:auto;display:block;border-radius:12px;touch-action:none;outline:none}
 #menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(14,16,22,.82);border-radius:12px;color:#fff;overflow:auto}
 #menu[hidden]{display:none}
-.mgrid{display:grid;gap:18px;width:100%;max-width:420px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;width:100%;max-width:760px}
+.mcol label{display:block;font-size:13px;margin-bottom:10px;color:#c4c8d0}
+.mcol input{width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid #555;background:#1b1d22;color:#fff;font:inherit}
+#netmsg{color:#ffd43b}
 .mcol{background:rgba(255,255,255,.06);border-radius:12px;padding:16px}
 .mcol h2{margin:0 0 4px;font-size:18px}
 .mcol p{margin:0 0 12px;font-size:13px;color:#c4c8d0;line-height:1.5}
@@ -40,7 +42,7 @@ canvas{width:100%;height:auto;display:block;border-radius:12px;touch-action:none
 #rows .rk{width:28px;color:var(--muted)}
 #rows .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #bmsg{color:var(--muted);font-size:14px;margin:6px 0 0}
-@media (max-width:640px){.mtitle{font-size:22px}}
+@media (max-width:640px){.mgrid{grid-template-columns:1fr}.mtitle{font-size:22px}}
 </style>
 </head>
 <body>
@@ -59,6 +61,13 @@ canvas{width:100%;height:auto;display:block;border-radius:12px;touch-action:none
       <button data-diff="normal">보통 <small>×1.5</small></button>
       <button data-diff="hard">어려움 <small>시간 촉박 · 좁은 칸 · ×2.2</small></button>
     </div>
+    <div class="mcol">
+      <h2>온라인 대전</h2>
+      <p>맵을 고르면 같은 맵에 들어온 사람들과 방에 모여요. 동시에 출발해서 모든 차를 가장 빨리 주차한 사람이 이겨요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</p>
+      <label>닉네임 <input id="nick" maxlength="12" autocomplete="off"></label>
+      <div id="maps"></div>
+      <p id="netmsg">서버 연결 중…</p>
+    </div>
   </div>
 </div>
 <div id="touch">
@@ -67,7 +76,7 @@ canvas{width:100%;height:auto;display:block;border-radius:12px;touch-action:none
 </div>
 </div>
 <section id="board">
-  <h2>온라인 랭킹 (싱글)</h2>
+  <h2>온라인 랭킹 (싱글 플레이)</h2>
   <div class="tabs" role="tablist">
     <button role="tab" data-tab="easy">쉬움</button><button role="tab" data-tab="normal" aria-selected="true">보통</button><button role="tab" data-tab="hard">어려움</button>
   </div>
@@ -110,10 +119,11 @@ console.assert(!overlap(corners(0,0,0,HW,HH),corners(60,0,P/2,HW,HH)),'SAT shoul
 // ---------- input ----------
 const keys={};
 addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
   if(/^Arrow|^Key[WASD]$|^Space$/.test(e.code))e.preventDefault();
   keys[e.code]=true;
   if(!e.repeat&&(e.code==='Space'||e.code==='Enter'||e.code==='KeyR'))action(); // repeat ignored so a held brake doesn't skip screens
-  if(e.code==='Escape')showMenu();
+  if(e.code==='Escape'){if(mode==='online'&&net)net.leave();showMenu();}
 });
 addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -129,7 +139,9 @@ function ctl(){const o={};for(const d in KEYMAP)o[d]=KEYMAP[d].some(c=>keys[c])|
 
 // ---------- game state ----------
 let diff,D,li,L,ci,ghosts,players,state='menu',msg='',attempts,score,rewindF,t=0;
-function startSingle(d){diff=d;D=DIFFS[d];attempts=0;score=0;loadLevel(0);}
+let mode='single',net=null,onlineMap=0,others={},roomStart=0,myTime=0; // net is set by the Firebase module below
+const now=()=>Date.now()+(net?net.offset:0);
+function startSingle(d){mode='single';diff=d;D=DIFFS[d];attempts=0;score=0;loadLevel(0);}
 function loadLevel(i){li=i;L=LEVELS[i];ci=0;ghosts=[];menu.hidden=true;cv.focus();startRound();}
 function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p;return[x,y,a,w+D.spotAdd,h+D.spotAdd];}
 const timeLimit=()=>L.time*D.timeMul;
@@ -139,8 +151,18 @@ function startRound(){
   state='drive';
 }
 function showMenu(){state='menu';menu.hidden=false;}
+function startOnline(i){
+  if(!net){document.getElementById('netmsg').textContent='아직 서버에 연결되지 않았어요.';return;}
+  mode='online';onlineMap=i;diff='normal';D=DIFFS.normal;L=LEVELS[i];li=i;others={};
+  state='lobby';menu.hidden=true;cv.focus();net.join(i);
+}
+function onRoomPlayers(v){others=v||{};}
+function onRoomStart(ts){ // a start time someone set; join it only if we're waiting and it's still ahead
+  if(mode==='online'&&(state==='lobby'||state==='result')&&ts>now()){roomStart=ts;state='countdown';}
+}
 function action(){
-  if(state==='fail')startRound();
+  if(state==='lobby'||state==='result'){if(net)net.setStart(now()+3000);}
+  else if(state==='fail')startRound();
   else if(state==='clear'){
     if(li+1<LEVELS.length)loadLevel(li+1);
     else{state='end';submitScore(diff,finalScore());}
@@ -178,15 +200,18 @@ function finishRound(p,color){
   ghosts.push({r:p.rec,color});
   score+=100+Math.round(left*50);
   if(ci+1<L.cars.length){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));}
+  else if(mode==='online'){myTime=(now()-roomStart)/1000;state='result';net.update({st:'done',time:Math.round(myTime*100)/100,att:attempts});}
   else state='clear';
 }
 
 function step(){
   t+=DT;
+  if(state==='countdown'&&now()>=roomStart){attempts=0;score=0;loadLevel(onlineMap);net.update({st:'race',ci:0,time:0});return;}
   if(state==='rewind'){rewindF-=4;if(rewindF<=0){ci++;startRound();}return;}
   if(state!=='drive')return;
   const live=players.filter(p=>!p.out);
   live.forEach(physics);
+  if(mode==='online'&&live[0].rec.length%6===0){const c=live[0].car;net.update({x:Math.round(c.x),y:Math.round(c.y),a:Math.round(c.a*100)/100,ci});}
   const i=live[0].rec.length-1;
   for(const p of live){const cc=corners(p.car.x,p.car.y,p.car.a,HW,HH);p.out=crashReason(p,cc,i);p.cc=cc;}
   for(const p of players.filter(p=>!p.out))if(isParked(p))return finishRound(p,COLORS[ci]);
@@ -217,6 +242,7 @@ function draw(){
   ctx.fillStyle='#3a3d44';ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
   for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  if(state==='lobby'||state==='countdown'||state==='result')return drawRoom();
   if(!L){drawCar(300,330,-0.3,COLORS[0]);drawCar(380,300,0.2,COLORS[1],.5);drawCar(460,320,0,COLORS[2],.5);return;}
   const frame=state==='rewind'?Math.max(0,rewindF):players[0].rec.length;
   L.cars.forEach((cd,j)=>{
@@ -237,10 +263,12 @@ function draw(){
   if(state==='drive'||state==='fail'){
     for(const p of players)drawCar(p.car.x,p.car.y,p.car.a,COLORS[ci],p.out?.35:1);
   }
+  if(mode==='online')for(const id in others){const o=others[id];if(id===net.uid||o.st!=='race'||o.x==null)continue;
+    drawCar(o.x,o.y,o.a,'#e9ecef',.35);text(String(o.name).slice(0,12),o.x,o.y-18,12,'#e9ecef');}
   // HUD
   const left=Math.max(0,timeLimit()-players[0].rec.length*DT);
   ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,34);
-  text(`${D.label} · 레벨 ${li+1}/${LEVELS.length} · ${L.name}`,12,23,16,'#fff','left');
+  text(mode==='online'?`온라인 대전 · ${L.name}`:`${D.label} · 레벨 ${li+1}/${LEVELS.length} · ${L.name}`,12,23,16,'#fff','left');
   text(`차량 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   점수 ${finalScore()}   재시도 ${attempts}`,W/2+40,23,16,'#fff');
   text(`${left.toFixed(1)}s`,W-12,23,18,left<3?'#ff8787':'#fff','right');
   ctx.fillStyle='#ffd43b';ctx.fillRect(0,34,W*(left/timeLimit()),3);
@@ -250,57 +278,112 @@ function draw(){
   if(state==='end')overlay(`${D.label} 클리어 · ${finalScore()}점`,`재시도 ${attempts}회 · 아래 랭킹에 기록됐어요 · Space로 메뉴`,'#ffd43b');
 }
 
+function drawRoom(){
+  ctx.fillStyle='rgba(10,12,18,.6)';ctx.fillRect(0,0,W,H);
+  const list=Object.entries(others).map(([id,o])=>({id,...o}));
+  if(state==='result'){
+    list.sort((a,b)=>(b.st==='done')-(a.st==='done')||(a.st==='done'?a.time-b.time:(b.ci||0)-(a.ci||0)));
+    text(`결과 · ${L.name}`,W/2,70,30,'#ffd43b');
+  }else text(`온라인 대전 · ${L.name}`,W/2,70,30,'#fff');
+  list.slice(0,12).forEach((o,i)=>{
+    const y=120+i*32,me=o.id===net.uid,st=o.st==='done'?`${Number(o.time).toFixed(2)}초 · 재시도 ${o.att||0}`:o.st==='race'?`주행 중 · 차량 ${(o.ci||0)+1}/${L.cars.length}`:'대기 중';
+    text(`${state==='result'?(i+1)+'. ':''}${String(o.name).slice(0,12)}${me?' (나)':''}`,W/2-20,y,18,me?'#ffd43b':'#fff','right');
+    text(st,W/2+20,y,18,'#cfd3da','left');
+  });
+  if(state==='countdown')text(String(Math.max(1,Math.ceil((roomStart-now())/1000))),W/2,H-110,64,'#69db7c');
+  else text(state==='result'?'Space / 탭: 다시 한 판 (방 전체 3초 뒤 출발) · Esc 나가기':'Space / 탭: 출발 카운트다운 (방에 있는 모두 동시 출발) · Esc 나가기',W/2,H-60,17,'#cfd3da');
+}
+
 let acc=0,last=performance.now();
 function loop(now){acc+=Math.min(0.1,(now-last)/1000);last=now;while(acc>=DT){step();acc-=DT;}draw();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 
 // ---------- menu ----------
+document.getElementById('maps').innerHTML=LEVELS.map((l,i)=>`<button data-map="${i}">${i+1}. ${l.name} <small>차 ${l.cars.length}대</small></button>`).join('');
 menu.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.diff)startSingle(b.dataset.diff);});
+  if(b.dataset.diff)startSingle(b.dataset.diff);else if(b.dataset.map)startOnline(+b.dataset.map);});
+const nickEl=document.getElementById('nick');
+try{nickEl.value=localStorage.getItem('pp-nick')||('플레이어'+Math.floor(100+Math.random()*900));}catch{nickEl.value='플레이어';}
+const nick=()=>(nickEl.value.trim()||'플레이어').slice(0,12);
+nickEl.addEventListener('change',()=>{try{localStorage.setItem('pp-nick',nick());}catch{}});
 
-// ---------- leaderboard (shared db; local fallback) ----------
+// ---------- leaderboard (Firebase via module below; local best as fallback) ----------
 const rowsEl=document.getElementById('rows'),bmsg=document.getElementById('bmsg');
-let db=null,user=null,myId=null,all={},tab='normal',online=false;
+let tab='normal';
 const local=()=>{try{return JSON.parse(localStorage.getItem('pp-best')||'{}')}catch{return{}}};
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;
-  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderBoard();}));
-async function renderBoard(){
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));net?net.watchBoard(tab):renderBoard(null);}));
+function renderBoard(list){ // list: [{id,name,s}] from Firebase, or null for local only
   rowsEl.textContent='';
-  let list;
-  if(online)list=Object.entries(all).map(([id,d])=>({id,s:d[tab]})).filter(r=>typeof r.s==='number');
-  else{const s=local()[tab];list=typeof s==='number'?[{id:'me',s}]:[];}
-  list.sort((a,b)=>b.s-a.s);list=list.slice(0,20);
-  const ps=online&&user?await user.profiles(list.map(r=>r.id)):{};
+  const online=!!list;
+  if(!online){const s=local()[tab];list=typeof s==='number'?[{id:'me',name:'나',s}]:[];}
   list.forEach((r,i)=>{
-    const li=document.createElement('li');if(r.id===myId||r.id==='me')li.className='me';
+    const li=document.createElement('li');if(r.id==='me'||(net&&r.id===net.uid))li.className='me';
     const a=document.createElement('span');a.className='rk';a.textContent=i+1;
-    const n=document.createElement('span');n.className='nm';n.textContent=(r.id==='me'||r.id===myId)?((ps[r.id]&&ps[r.id].name)||'나'):((ps[r.id]&&ps[r.id].name)||'플레이어');
+    const n=document.createElement('span');n.className='nm';n.textContent=String(r.name||'플레이어');
     const s=document.createElement('span');s.textContent=r.s+'점';
     li.append(a,n,s);rowsEl.append(li);
   });
-  if(!list.length)bmsg.textContent='아직 기록이 없어요. 첫 기록을 남겨 보세요!';
-  else bmsg.textContent=online?'':'온라인 랭킹을 쓸 수 없어 이 기기의 최고 기록만 보여요.';
+  bmsg.textContent=!list.length?'아직 기록이 없어요. 첫 기록을 남겨 보세요!':online?'':'서버에 연결되지 않아 이 기기의 최고 기록만 보여요.';
 }
-async function submitScore(d,s){
+function submitScore(d,s){
   try{const b=local();if(!(b[d]>=s)){b[d]=s;localStorage.setItem('pp-best',JSON.stringify(b));}}catch{}
-  if(online&&myId){
-    const mine=all[myId]||{};
-    if(!(mine[d]>=s)){try{await db.collection('scores').doc(myId).set({...mine,[d]:s,at:Date.now()});}
-      catch(e){bmsg.textContent='랭킹 저장 권한이 없어요(공유받은 사람은 참여자 권한 필요). 이 기기에만 저장했어요.';}}
-  }
-  renderBoard();
+  if(net)net.submitScore(d,s,nick()).catch(e=>{console.error(e);bmsg.textContent='랭킹 저장에 실패했어요. 이 기기에만 저장했어요.';});
+  else renderBoard(null);
 }
-renderBoard();
-(async()=>{
-  if(!window.claude||!claude.use){return;}
-  [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
-  if(!db){renderBoard();return;}
-  myId=user?await user.id():null;
-  db.collection('scores').onSnapshot(snap=>{all={};snap.docs.forEach(d=>{if(d.exists)all[d.id]=d.data();});online=true;renderBoard();},
-    ()=>{online=false;renderBoard();});
-})();
+renderBoard(null);
+</script>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {getAuth,signInAnonymously,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getFirestore,collection,doc,getDoc,setDoc,query,orderBy,limit,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {getDatabase,ref,set,update,remove,onValue,onDisconnect} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+const app=initializeApp({
+  apiKey:"AIzaSyAWqL5uMxFWPYO7fHmMIPw8ANjWKzMmqSQ",
+  authDomain:"wakpark.firebaseapp.com",
+  databaseURL:"https://wakpark-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"wakpark",
+  storageBucket:"wakpark.firebasestorage.app",
+  messagingSenderId:"576573868825",
+  appId:"1:576573868825:web:c1700f42ae4ddf17d6d388"
+});
+const auth=getAuth(app),fs=getFirestore(app),rt=getDatabase(app);
+const netmsg=document.getElementById('netmsg');
+let boardUnsub=null,roomUnsubs=[],me=null,lastUp=0;
+signInAnonymously(auth).catch(e=>{netmsg.textContent='서버 연결 실패: Firebase에서 익명 로그인이 켜져 있는지 확인하세요.';console.error(e);});
+onAuthStateChanged(auth,u=>{
+  if(!u||net)return;
+  const api={uid:u.uid,offset:0,map:null,
+    watchBoard(t){
+      if(boardUnsub)boardUnsub();
+      boardUnsub=onSnapshot(query(collection(fs,'scores'),orderBy(t,'desc'),limit(20)),
+        snap=>renderBoard(snap.docs.map(d=>({id:d.id,name:d.data().name,s:d.data()[t]}))),
+        e=>{console.error(e);renderBoard(null);});
+    },
+    async submitScore(d,s,name){
+      const r=doc(fs,'scores',u.uid),cur=(await getDoc(r)).data()||{};
+      await setDoc(r,{name,...(cur[d]>=s?{}:{[d]:s})},{merge:true}); // keep personal best, refresh name
+    },
+    join(map){
+      api.leave();
+      me=ref(rt,`rooms/map${map}/players/${u.uid}`);
+      onDisconnect(me).remove();
+      set(me,{name:nick(),st:'lobby',ci:0});
+      roomUnsubs=[onValue(ref(rt,`rooms/map${map}/players`),s=>onRoomPlayers(s.val())),
+                  onValue(ref(rt,`rooms/map${map}/start`),s=>{if(s.val())onRoomStart(s.val());})];
+      api.map=map;
+    },
+    leave(){roomUnsubs.forEach(f=>f());roomUnsubs=[];if(me){onDisconnect(me).cancel();remove(me);me=null;}api.map=null;},
+    setStart(ts){if(api.map!=null)set(ref(rt,`rooms/map${api.map}/start`),Math.round(ts));},
+    update(v){ // throttle position updates; status changes go out immediately
+      if(!me)return;const t=Date.now();
+      if(v.st||t-lastUp>90){lastUp=t;update(me,v);}
+    },
+  };
+  onValue(ref(rt,'.info/serverTimeOffset'),s=>{api.offset=s.val()||0;});
+  net=api;netmsg.textContent='';
+  api.watchBoard(tab);
+});
 </script>
 </body>
 </html>
-
-</body></html>
