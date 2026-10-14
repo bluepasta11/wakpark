@@ -1,0 +1,306 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parallel Park</title>
+<style>
+:root{--bg:#f2efe8;--fg:#222;--muted:#666;--btn:#ddd8cc;--card:#fffdf8;--line:#e2ddd0;--accent:#e8590c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15161a;--fg:#eee;--muted:#999;--btn:#2c2f36;--card:#1d1f24;--line:#30333a;--accent:#ff922b}}
+:root[data-theme="dark"]{--bg:#15161a;--fg:#eee;--muted:#999;--btn:#2c2f36;--card:#1d1f24;--line:#30333a;--accent:#ff922b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px;min-height:100vh}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:.5px}
+p.sub{margin:0 0 12px;color:var(--muted);font-size:14px;text-align:center}
+#wrap{width:100%;max-width:960px;position:relative}
+canvas{width:100%;height:auto;display:block;border-radius:12px;touch-action:none;outline:none}
+#menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(14,16,22,.82);border-radius:12px;color:#fff;overflow:auto}
+#menu[hidden]{display:none}
+.mgrid{display:grid;gap:18px;width:100%;max-width:420px}
+.mcol{background:rgba(255,255,255,.06);border-radius:12px;padding:16px}
+.mcol h2{margin:0 0 4px;font-size:18px}
+.mcol p{margin:0 0 12px;font-size:13px;color:#c4c8d0;line-height:1.5}
+.mcol button{display:block;width:100%;margin:0 0 8px;padding:11px 12px;border:0;border-radius:10px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;text-align:left;background:#2f333c;color:#fff}
+.mcol button:hover,.mcol button:focus-visible{background:#3d424d;outline:2px solid #ffd43b}
+.mcol button small{float:right;font-weight:400;color:#aab}
+.mtitle{grid-column:1/-1;text-align:center;font-size:30px;font-weight:800;letter-spacing:2px;margin:0}
+#touch{display:none;justify-content:space-between;margin-top:12px;gap:12px}
+#touch div{display:flex;gap:10px}
+#touch button{width:64px;height:64px;font-size:24px;border:0;border-radius:14px;background:var(--btn);color:var(--fg);user-select:none;-webkit-user-select:none;touch-action:none}
+@media (pointer:coarse){#touch{display:flex}}
+#board{width:100%;max-width:960px;margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+#board h2{margin:0 0 10px;font-size:18px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#rows{list-style:none;margin:0;padding:0}
+#rows li{display:flex;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:15px}
+#rows li.me{font-weight:700;color:var(--accent)}
+#rows .rk{width:28px;color:var(--muted)}
+#rows .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bmsg{color:var(--muted);font-size:14px;margin:6px 0 0}
+@media (max-width:640px){.mtitle{font-size:22px}}
+</style>
+</head>
+<body>
+<h1>Parallel Park</h1>
+<p class="sub">차를 주차하면 시간이 되감깁니다. 다음 차를 <b>같은 시간대에</b> 주차하세요. 과거의 차와 부딪히면 타임라인 붕괴!<br>
+게임 화면을 한 번 클릭한 뒤 키보드로 조작하세요 · Space 브레이크/계속 · Esc 메뉴</p>
+<div id="wrap">
+<canvas id="c" width="960" height="600" tabindex="0" aria-label="Parallel Park 게임 화면"></canvas>
+<div id="menu">
+  <div class="mgrid">
+    <p class="mtitle">PARALLEL PARK</p>
+    <div class="mcol">
+      <h2>싱글 플레이</h2>
+      <p>5개 레벨 연속 도전. 남은 시간이 점수가 되고, 재시도하면 감점이에요. 조작: <b>방향키</b> 또는 WASD · 브레이크 <b>Space</b>/Shift</p>
+      <button data-diff="easy">쉬움 <small>시간 넉넉 · 넓은 칸 · ×1</small></button>
+      <button data-diff="normal">보통 <small>×1.5</small></button>
+      <button data-diff="hard">어려움 <small>시간 촉박 · 좁은 칸 · ×2.2</small></button>
+    </div>
+  </div>
+</div>
+<div id="touch">
+  <div><button data-k="left" aria-label="왼쪽">◀</button><button data-k="right" aria-label="오른쪽">▶</button></div>
+  <div><button data-k="brake" aria-label="브레이크">■</button><button data-k="down" aria-label="후진">▼</button><button data-k="up" aria-label="전진">▲</button></div>
+</div>
+</div>
+<section id="board">
+  <h2>온라인 랭킹 (싱글)</h2>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="easy">쉬움</button><button role="tab" data-tab="normal" aria-selected="true">보통</button><button role="tab" data-tab="hard">어려움</button>
+  </div>
+  <ol id="rows"></ol>
+  <p id="bmsg">랭킹 불러오는 중…</p>
+</section>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d'),menu=document.getElementById('menu');
+const W=960,H=600,DT=1/60,P=Math.PI,HW=22,HH=11;
+const COLORS=['#ff6b6b','#4dabf7','#ffd43b','#69db7c','#da77f2'];
+// cars: s=[x,y,angle] spawn, p=[x,y,angle,w,h] spot. obs: [cx,cy,w,h,'c'(parked car)?]
+const LEVELS=[
+ {name:'첫 출근',time:8,obs:[[760,258,44,22,'c'],[760,342,44,22,'c']],
+  cars:[{s:[100,300,0],p:[760,300,0]}]},
+ {name:'엇갈린 시간',time:9,obs:[[480,300,30,120]],
+  cars:[{s:[80,200,0],p:[820,420,0]},{s:[880,200,P],p:[140,420,P]}]},
+ {name:'평행 주차',time:12,obs:[[480,588,960,24],[230,550,44,22,'c'],[370,550,44,22,'c'],[430,550,44,22,'c'],[570,550,44,22,'c'],[630,550,44,22,'c'],[770,550,44,22,'c']],
+  cars:[{s:[60,150,0],p:[300,550,0,70,32]},{s:[60,250,0],p:[500,550,0,70,32]},{s:[60,350,0],p:[700,550,0,70,32]}]},
+ {name:'병목',time:12,obs:[[480,125,24,250],[480,475,24,250]],
+  cars:[{s:[70,90,0],p:[860,90,0]},{s:[890,300,P],p:[100,560,P]},{s:[70,400,0],p:[860,520,0]}]},
+ {name:'블랙 프라이데이',time:12,obs:[[480,312,300,14],[480,270,22,44,'c']],
+  cars:[{s:[60,70,0],p:[360,270,-P/2]},{s:[900,70,P],p:[420,270,-P/2]},{s:[60,530,0],p:[540,270,-P/2]},{s:[900,530,P],p:[600,270,-P/2]}]},
+];
+const DIFFS={easy:{label:'쉬움',timeMul:1.5,spotAdd:10,angTol:.35,mult:1},
+             normal:{label:'보통',timeMul:1,spotAdd:0,angTol:.25,mult:1.5},
+             hard:{label:'어려움',timeMul:.8,spotAdd:-4,angTol:.15,mult:2.2}};
+
+function corners(x,y,a,hw,hh){const c=Math.cos(a),s=Math.sin(a);return[[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].map(([u,v])=>[x+u*c-v*s,y+u*s+v*c]);}
+function overlap(A,B){ // separating axis test for two convex quads
+  for(const poly of [A,B])for(let i=0;i<4;i++){
+    const p=poly[i],q=poly[(i+1)%4],nx=q[1]-p[1],ny=p[0]-q[0];
+    let a1=1e9,a2=-1e9,b1=1e9,b2=-1e9;
+    for(const v of A){const d=v[0]*nx+v[1]*ny;a1=Math.min(a1,d);a2=Math.max(a2,d);}
+    for(const v of B){const d=v[0]*nx+v[1]*ny;b1=Math.min(b1,d);b2=Math.max(b2,d);}
+    if(a2<b1||b2<a1)return false;
+  }return true;}
+console.assert(overlap(corners(0,0,0,HW,HH),corners(30,0,P/4,HW,HH)),'SAT should hit');
+console.assert(!overlap(corners(0,0,0,HW,HH),corners(60,0,P/2,HW,HH)),'SAT should miss');
+
+// ---------- input ----------
+const keys={};
+addEventListener('keydown',e=>{
+  if(/^Arrow|^Key[WASD]$|^Space$/.test(e.code))e.preventDefault();
+  keys[e.code]=true;
+  if(!e.repeat&&(e.code==='Space'||e.code==='Enter'||e.code==='KeyR'))action(); // repeat ignored so a held brake doesn't skip screens
+  if(e.code==='Escape')showMenu();
+});
+addEventListener('keyup',e=>{keys[e.code]=false;});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
+const touch={};
+document.querySelectorAll('#touch button').forEach(b=>{
+  const k=b.dataset.k;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();touch[k]=true;if(state!=='drive')action();});
+  for(const ev of['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>touch[k]=false);
+});
+cv.addEventListener('pointerdown',()=>{cv.focus();action();});
+const KEYMAP={up:['ArrowUp','KeyW'],down:['ArrowDown','KeyS'],left:['ArrowLeft','KeyA'],right:['ArrowRight','KeyD'],brake:['Space','ShiftLeft','ShiftRight']};
+function ctl(){const o={};for(const d in KEYMAP)o[d]=KEYMAP[d].some(c=>keys[c])||!!touch[d];return o;}
+
+// ---------- game state ----------
+let diff,D,li,L,ci,ghosts,players,state='menu',msg='',attempts,score,rewindF,t=0;
+function startSingle(d){diff=d;D=DIFFS[d];attempts=0;score=0;loadLevel(0);}
+function loadLevel(i){li=i;L=LEVELS[i];ci=0;ghosts=[];menu.hidden=true;cv.focus();startRound();}
+function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p;return[x,y,a,w+D.spotAdd,h+D.spotAdd];}
+const timeLimit=()=>L.time*D.timeMul;
+function startRound(){
+  const [x,y,a]=L.cars[ci].s;
+  players=[{car:{x,y,a,v:0},rec:[],parkT:0,out:''}];
+  state='drive';
+}
+function showMenu(){state='menu';menu.hidden=false;}
+function action(){
+  if(state==='fail')startRound();
+  else if(state==='clear'){
+    if(li+1<LEVELS.length)loadLevel(li+1);
+    else{state='end';submitScore(diff,finalScore());}
+  }else if(state==='end')showMenu();
+}
+const finalScore=()=>Math.max(0,Math.round(score*D.mult));
+const ghostAt=(r,i)=>r[Math.min(i,r.length-1)];
+
+function physics(p){
+  const c=p.car,k=ctl(),st=(k.right?1:0)-(k.left?1:0);
+  if(k.brake)c.v-=Math.sign(c.v)*Math.min(Math.abs(c.v),900*DT); // brake: stops hard, never reverses
+  else if(k.up)c.v+=c.v<0?600*DT:380*DT;
+  else if(k.down)c.v-=c.v>0?600*DT:300*DT;
+  else c.v-=Math.sign(c.v)*Math.min(Math.abs(c.v),220*DT);
+  c.v=Math.max(-130,Math.min(230,c.v));
+  c.a+=st*(2.8/230)*c.v*DT; // constant turn radius, reverses naturally when backing up
+  c.x+=Math.cos(c.a)*c.v*DT;c.y+=Math.sin(c.a)*c.v*DT;
+  p.rec.push([c.x,c.y,c.a]);
+}
+function crashReason(p,cc,i){
+  if(cc.some(([x,y])=>x<0||y<0||x>W||y>H))return '벽에 부딪혔어요!';
+  for(const o of L.obs)if(overlap(cc,corners(o[0],o[1],0,o[2]/2,o[3]/2)))return '충돌!';
+  for(const g of ghosts){const q=ghostAt(g.r,i);if(overlap(cc,corners(q[0],q[1],q[2],HW,HH)))return '과거의 차와 충돌! 타임라인 붕괴';}
+  return '';
+}
+function isParked(p){
+  const c=p.car,[sx,sy,sa,sw,sh]=spot(ci),co=Math.cos(-sa),si=Math.sin(-sa);
+  const inside=corners(c.x,c.y,c.a,HW,HH).every(([x,y])=>{const u=(x-sx)*co-(y-sy)*si,v=(x-sx)*si+(y-sy)*co;return Math.abs(u)<=sw/2&&Math.abs(v)<=sh/2;});
+  let da=((c.a-sa)%P+P)%P;da=Math.min(da,P-da); // nose-in or tail-in both count
+  p.parkT=inside&&da<D.angTol&&Math.abs(c.v)<8?p.parkT+DT:0;
+  return p.parkT>0.35;
+}
+function finishRound(p,color){
+  const left=Math.max(0,timeLimit()-p.rec.length*DT);
+  ghosts.push({r:p.rec,color});
+  score+=100+Math.round(left*50);
+  if(ci+1<L.cars.length){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));}
+  else state='clear';
+}
+
+function step(){
+  t+=DT;
+  if(state==='rewind'){rewindF-=4;if(rewindF<=0){ci++;startRound();}return;}
+  if(state!=='drive')return;
+  const live=players.filter(p=>!p.out);
+  live.forEach(physics);
+  const i=live[0].rec.length-1;
+  for(const p of live){const cc=corners(p.car.x,p.car.y,p.car.a,HW,HH);p.out=crashReason(p,cc,i);p.cc=cc;}
+  for(const p of players.filter(p=>!p.out))if(isParked(p))return finishRound(p,COLORS[ci]);
+  const timeUp=i*DT>=timeLimit();
+  if(players.every(p=>p.out)||timeUp){
+    msg=timeUp&&players.some(p=>!p.out)?'시간 초과! 지각이에요':players[0].out;
+    attempts++;score-=50;
+    state='fail';
+  }
+}
+
+// ---------- drawing ----------
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function drawCar(x,y,a,color,alpha=1,w=44,h=22,label){
+  ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(a);
+  ctx.fillStyle='rgba(0,0,0,.25)';rr(-w/2+2,-h/2+3,w,h,6);ctx.fill();
+  ctx.fillStyle=color;rr(-w/2,-h/2,w,h,6);ctx.fill();
+  ctx.fillStyle='rgba(20,30,45,.75)';rr(w*0.08,-h/2+3,w*0.22,h-6,3);ctx.fill();
+  ctx.fillStyle='rgba(20,30,45,.5)';rr(-w*0.38,-h/2+4,w*0.16,h-8,3);ctx.fill();
+  ctx.fillStyle='#fff8c4';ctx.fillRect(w/2-3,-h/2+2,3,4);ctx.fillRect(w/2-3,h/2-6,3,4);
+  ctx.restore();
+  if(label){ctx.save();ctx.globalAlpha=alpha;text(label,x,y-18,13,color);ctx.restore();}
+}
+function text(s,x,y,size,color='#fff',align='center'){ctx.font=`700 ${size}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`;ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(s,x,y);}
+function overlay(title,sub,color='#fff'){ctx.fillStyle='rgba(10,12,18,.72)';ctx.fillRect(0,0,W,H);text(title,W/2,H/2-10,40,color);text(sub,W/2,H/2+32,18,'#cfd3da');}
+
+function draw(){
+  ctx.fillStyle='#3a3d44';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  if(!L){drawCar(300,330,-0.3,COLORS[0]);drawCar(380,300,0.2,COLORS[1],.5);drawCar(460,320,0,COLORS[2],.5);return;}
+  const frame=state==='rewind'?Math.max(0,rewindF):players[0].rec.length;
+  L.cars.forEach((cd,j)=>{
+    const [x,y,a,w,h]=spot(j);ctx.save();ctx.translate(x,y);ctx.rotate(a);
+    const cur=j===ci&&state==='drive',col=COLORS[j];
+    ctx.fillStyle=col+(cur?Math.round(40+30*Math.sin(t*6)).toString(16).padStart(2,'0'):'22');
+    ctx.fillRect(-w/2,-h/2,w,h);
+    ctx.setLineDash(cur?[]:[6,5]);ctx.strokeStyle=col;ctx.lineWidth=cur?3:2;ctx.strokeRect(-w/2,-h/2,w,h);ctx.setLineDash([]);
+    ctx.rotate(-a);text('P'+(j+1),0,6,16,col);ctx.restore();
+  });
+  for(const o of L.obs){
+    if(o[4])drawCar(o[0],o[1],o[2]>o[3]?0:P/2,'#9aa0aa',1,Math.max(o[2],o[3]),Math.min(o[2],o[3]));
+    else{ctx.fillStyle='#8a8f98';ctx.fillRect(o[0]-o[2]/2,o[1]-o[3]/2,o[2],o[3]);ctx.fillStyle='#ffd43b';
+      for(let k=-o[2]/2;k<o[2]/2-4;k+=24)ctx.fillRect(o[0]+k,o[1]-2,12,4);}
+  }
+  L.cars.forEach((cd,j)=>{if(j>ci){const [x,y]=cd.s;ctx.strokeStyle=COLORS[j];ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.strokeRect(x-HW,y-HH,HW*2,HH*2);ctx.setLineDash([]);}});
+  for(const g of ghosts){const q=ghostAt(g.r,frame);drawCar(q[0],q[1],q[2],g.color,state==='rewind'?.85:.6);}
+  if(state==='drive'||state==='fail'){
+    for(const p of players)drawCar(p.car.x,p.car.y,p.car.a,COLORS[ci],p.out?.35:1);
+  }
+  // HUD
+  const left=Math.max(0,timeLimit()-players[0].rec.length*DT);
+  ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,34);
+  text(`${D.label} · 레벨 ${li+1}/${LEVELS.length} · ${L.name}`,12,23,16,'#fff','left');
+  text(`차량 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   점수 ${finalScore()}   재시도 ${attempts}`,W/2+40,23,16,'#fff');
+  text(`${left.toFixed(1)}s`,W-12,23,18,left<3?'#ff8787':'#fff','right');
+  ctx.fillStyle='#ffd43b';ctx.fillRect(0,34,W*(left/timeLimit()),3);
+  if(state==='rewind'){ctx.fillStyle='rgba(77,171,247,.15)';ctx.fillRect(0,0,W,H);text('◀◀ 되감기',W/2,H/2,48,'#a5d8ff');}
+  if(state==='fail')overlay(msg,'Space / 탭으로 이 라운드 다시','#ff8787');
+  if(state==='clear')overlay('주차 완료!',li+1<LEVELS.length?'Space / 탭으로 다음 레벨':'Space / 탭으로 결과 보기','#69db7c');
+  if(state==='end')overlay(`${D.label} 클리어 · ${finalScore()}점`,`재시도 ${attempts}회 · 아래 랭킹에 기록됐어요 · Space로 메뉴`,'#ffd43b');
+}
+
+let acc=0,last=performance.now();
+function loop(now){acc+=Math.min(0.1,(now-last)/1000);last=now;while(acc>=DT){step();acc-=DT;}draw();requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+
+// ---------- menu ----------
+menu.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.diff)startSingle(b.dataset.diff);});
+
+// ---------- leaderboard (shared db; local fallback) ----------
+const rowsEl=document.getElementById('rows'),bmsg=document.getElementById('bmsg');
+let db=null,user=null,myId=null,all={},tab='normal',online=false;
+const local=()=>{try{return JSON.parse(localStorage.getItem('pp-best')||'{}')}catch{return{}}};
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderBoard();}));
+async function renderBoard(){
+  rowsEl.textContent='';
+  let list;
+  if(online)list=Object.entries(all).map(([id,d])=>({id,s:d[tab]})).filter(r=>typeof r.s==='number');
+  else{const s=local()[tab];list=typeof s==='number'?[{id:'me',s}]:[];}
+  list.sort((a,b)=>b.s-a.s);list=list.slice(0,20);
+  const ps=online&&user?await user.profiles(list.map(r=>r.id)):{};
+  list.forEach((r,i)=>{
+    const li=document.createElement('li');if(r.id===myId||r.id==='me')li.className='me';
+    const a=document.createElement('span');a.className='rk';a.textContent=i+1;
+    const n=document.createElement('span');n.className='nm';n.textContent=(r.id==='me'||r.id===myId)?((ps[r.id]&&ps[r.id].name)||'나'):((ps[r.id]&&ps[r.id].name)||'플레이어');
+    const s=document.createElement('span');s.textContent=r.s+'점';
+    li.append(a,n,s);rowsEl.append(li);
+  });
+  if(!list.length)bmsg.textContent='아직 기록이 없어요. 첫 기록을 남겨 보세요!';
+  else bmsg.textContent=online?'':'온라인 랭킹을 쓸 수 없어 이 기기의 최고 기록만 보여요.';
+}
+async function submitScore(d,s){
+  try{const b=local();if(!(b[d]>=s)){b[d]=s;localStorage.setItem('pp-best',JSON.stringify(b));}}catch{}
+  if(online&&myId){
+    const mine=all[myId]||{};
+    if(!(mine[d]>=s)){try{await db.collection('scores').doc(myId).set({...mine,[d]:s,at:Date.now()});}
+      catch(e){bmsg.textContent='랭킹 저장 권한이 없어요(공유받은 사람은 참여자 권한 필요). 이 기기에만 저장했어요.';}}
+  }
+  renderBoard();
+}
+renderBoard();
+(async()=>{
+  if(!window.claude||!claude.use){return;}
+  [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
+  if(!db){renderBoard();return;}
+  myId=user?await user.id():null;
+  db.collection('scores').onSnapshot(snap=>{all={};snap.docs.forEach(d=>{if(d.exists)all[d.id]=d.data();});online=true;renderBoard();},
+    ()=>{online=false;renderBoard();});
+})();
+</script>
+</body>
+</html>
+
+</body></html>
