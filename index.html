@@ -321,11 +321,17 @@ function goMenu(){if(mode==='online'&&net)net.leave();showMenu();}
 let pad=null,padPrev=[];
 const padHint=document.getElementById('padhint'),PAD_WAIT='🎮 패드는 연결 후 버튼을 한 번 누르면 잡혀요',PAD_ON='🎮 패드: RT·A 전진 · LT·B 후진 · 스틱 조향 · X 브레이크 · Start 계속 · Back 메뉴';
 if(navigator.getGamepads)padHint.textContent=PAD_WAIT;
+let padNames='';
 function pollPad(){
-  const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
-  if(!gp){if(pad)padHint.textContent=PAD_WAIT;pad=null;return;}
-  if(!pad)padHint.textContent=PAD_ON;
-  const b=i=>!!gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.3),ax=Math.abs(gp.axes[0]||0)>.18?gp.axes[0]:0;
+  // read every connected pad: a PC can expose several (keyboards/wheels too), and the one in hand may not be first.
+  // Prefer standard-mapped (Xbox-style) pads so another device's resting axis can't steer the car.
+  const all=[...(navigator.getGamepads?navigator.getGamepads():[])].filter(g=>g&&g.connected);
+  if(!all.length){if(pad)padHint.textContent=PAD_WAIT;pad=null;padNames='';return;}
+  const std=all.filter(g=>g.mapping==='standard'),gps=std.length?std:all;
+  const names=gps.map(g=>String(g.id||'패드').replace(/\s*\(.*$/,'').slice(0,28)).join(', ');
+  if(names!==padNames){padNames=names;padHint.textContent=PAD_ON+'  ['+names+']';}
+  const b=i=>gps.some(gp=>!!gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.3));
+  let ax=0;for(const gp of gps){const v=gp.axes[0]||0;if(Math.abs(v)>Math.abs(ax))ax=v;}if(Math.abs(ax)<=.18)ax=0;
   pad={up:b(7)||b(0)||b(12),down:b(6)||b(1)||b(13),brake:b(2)||b(5),steer:ax||(b(15)?1:0)-(b(14)?1:0)};
   const hit=i=>b(i)&&!padPrev[i];
   if(help.open){if(hit(0)||hit(9)){help.close();cv.focus();}}
@@ -337,7 +343,7 @@ function pollPad(){
     if(hit(9)||(state!=='drive'&&hit(0))){Snd.init();action();}
     if(hit(8))goMenu();
   }
-  padPrev=gp.buttons.map((_,i)=>b(i));
+  padPrev=Array.from({length:20},(_,i)=>b(i));
 }
 function ctl(){const o={};for(const d in KEYMAP)o[d]=KEYMAP[d].some(c=>keys[c])||!!touch[d]||!!(pad&&pad[d]);
   o.steer=(o.right?1:0)-(o.left?1:0);if(pad&&pad.steer)o.steer=pad.steer; // analog stick steers proportionally
