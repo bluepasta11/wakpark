@@ -23,6 +23,8 @@ h1 small{display:block;font-size:15px;color:var(--muted);text-shadow:none;letter
 .btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #e2d6c0}
 #wrap{width:100%;max-width:960px;position:relative;border:6px solid #fff;border-radius:20px;box-shadow:0 12px 30px rgba(60,80,120,.22);background:#fff;overflow:hidden}
 canvas{width:100%;height:auto;display:block;touch-action:none;outline:none}
+#rwgif{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) rotate(-3deg);width:28%;aspect-ratio:1;object-fit:cover;border:6px solid #fff;border-radius:20px;box-shadow:0 10px 24px rgba(20,30,50,.35);pointer-events:none}
+#rwgif[hidden]{display:none}
 #menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(255,250,240,.78);backdrop-filter:blur(3px);overflow:auto}
 #menu[hidden]{display:none}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:780px}
@@ -43,6 +45,7 @@ canvas{width:100%;height:auto;display:block;touch-action:none;outline:none}
 .bar label{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
 .bar input[type=range]{width:140px;accent-color:var(--accent)}
 .bar .hint{color:var(--muted);font-size:13px;margin-left:auto}
+#padhint{color:var(--blue);font-weight:700}#padhint:empty{display:none}
 #touch{display:none;width:100%;max-width:960px;justify-content:space-between;margin-top:12px;gap:12px}
 #touch div{display:flex;gap:10px}
 #touch button{width:62px;height:62px;font-size:22px;border:0;border-radius:16px;background:#fff;color:var(--fg);box-shadow:0 4px 0 #e2d6c0;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -81,6 +84,7 @@ kbd{display:inline-block;padding:1px 6px;border-radius:6px;border:1px solid var(
 </header>
 <div id="wrap">
 <canvas id="c" width="960" height="600" tabindex="0" aria-label="Wak Park 게임 화면"></canvas>
+<img id="rwgif" alt="되감기" hidden>
 <div id="menu">
   <div class="mgrid">
     <p class="mtitle"><img src="img/wak.jpg" alt="우왁굳" class="mlogo">WAK PARK</p>
@@ -109,7 +113,7 @@ kbd{display:inline-block;padding:1px 6px;border-radius:6px;border:1px solid var(
 <div class="bar">
   <label>🎵 배경음 <input type="range" id="vbgm" min="0" max="100" aria-label="배경음 볼륨"></label>
   <label>🔊 효과음 <input type="range" id="vsfx" min="0" max="100" aria-label="효과음 볼륨"></label>
-  <span class="hint">화면 클릭 후 <kbd>방향키</kbd>/<kbd>WASD</kbd> 운전 · <kbd>Space</kbd> 브레이크 · <kbd>Esc</kbd> 메뉴</span>
+  <span class="hint" id="padhint"></span><span class="hint">화면 클릭 후 <kbd>방향키</kbd>/<kbd>WASD</kbd> 운전 · <kbd>Space</kbd> 브레이크 · <kbd>Esc</kbd> 메뉴</span>
 </div>
 <section id="board">
   <h2>🏆 싱글 플레이 랭킹 <small style="font-family:system-ui,sans-serif;font-size:13px;color:var(--muted)">싱글 전용 · 온라인 대전 기록은 포함되지 않아요</small></h2>
@@ -126,6 +130,7 @@ kbd{display:inline-block;padding:1px 6px;border-radius:6px;border:1px solid var(
     <li><span class="ic">🅿️</span><div><b>반짝이는 칸에 주차</b>제한 시간 안에 차를 같은 색으로 빛나는 칸에 넣고 멈추면 성공이에요. 앞으로 넣어도, 후진으로 넣어도 돼요.</div></li>
     <li><span class="ic">⏪</span><div><b>시간이 되감겨요</b>주차하면 시간이 처음으로 돌아가고 다음 차를 운전해요. 이전 차들은 내가 운전했던 그대로 반투명하게 다시 움직여요.</div></li>
     <li><span class="ic">💥</span><div><b>과거의 나를 피하세요</b>과거의 차, 주차된 차, 벽이나 화단에 부딪히거나 시간을 넘기면 실패예요. 실패하면 그 차만 다시 하면 돼요.</div></li>
+    <li><span class="ic">🎮</span><div><b>게임패드</b>RT·A 전진, LT·B 후진, 왼쪽 스틱으로 조향, X·RB 브레이크, Start 계속, Back 메뉴예요. 메뉴는 십자키 ↑↓로 고르고 A로 선택해요.</div></li>
     <li><span class="ic">⌨️</span><div><b>조작</b><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 또는 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>로 운전하고, <kbd>Space</kbd>는 브레이크, <kbd>Esc</kbd>는 메뉴예요. 휴대폰은 화면 아래 버튼으로 조작해요.</div></li>
     <li><span class="ic">🏆</span><div><b>점수와 랭킹</b>빨리 주차할수록 점수가 높고, 재시도하면 감점이에요. 난이도 배율이 곱해져서 랭킹에 올라가요.</div></li>
     <li><span class="ic">🌐</span><div><b>온라인 대전</b>맵을 고르면 같은 맵을 고른 사람들과 방에 모여요. 누군가 <kbd>Space</kbd>를 누르면 3초 뒤 모두 동시에 출발해요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</div></li>
@@ -298,7 +303,7 @@ addEventListener('keydown',e=>{
   if(/^Arrow|^Key[WASD]$|^Space$/.test(e.code))e.preventDefault();
   keys[e.code]=true;
   if(!e.repeat&&(e.code==='Space'||e.code==='Enter'||e.code==='KeyR'))action(); // repeat ignored so a held brake doesn't skip screens
-  if(e.code==='Escape'){if(mode==='online'&&net)net.leave();showMenu();}
+  if(e.code==='Escape')goMenu();
 });
 addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -310,22 +315,49 @@ document.querySelectorAll('#touch button').forEach(b=>{
 });
 cv.addEventListener('pointerdown',()=>{cv.focus();action();});
 const KEYMAP={up:['ArrowUp','KeyW'],down:['ArrowDown','KeyS'],left:['ArrowLeft','KeyA'],right:['ArrowRight','KeyD'],brake:['Space','ShiftLeft','ShiftRight']};
-function ctl(){const o={};for(const d in KEYMAP)o[d]=KEYMAP[d].some(c=>keys[c])||!!touch[d];return o;}
+function goMenu(){if(mode==='online'&&net)net.leave();showMenu();}
+// ---------- gamepad (standard mapping: Xbox / PlayStation / Switch Pro) ----------
+// RT·A·↑ 전진, LT·B·↓ 후진, 왼쪽 스틱·←→ 조향, X·RB 브레이크, A·Start 계속, Back/Select 메뉴
+let pad=null,padPrev=[];
+addEventListener('gamepadconnected',e=>{document.getElementById('padhint').textContent='🎮 컨트롤러 연결됨';});
+addEventListener('gamepaddisconnected',()=>{document.getElementById('padhint').textContent='';pad=null;});
+function pollPad(){
+  const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
+  if(!gp){pad=null;return;}
+  const b=i=>!!gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.3),ax=Math.abs(gp.axes[0]||0)>.18?gp.axes[0]:0;
+  pad={up:b(7)||b(0)||b(12),down:b(6)||b(1)||b(13),brake:b(2)||b(5),steer:ax||(b(15)?1:0)-(b(14)?1:0)};
+  const hit=i=>b(i)&&!padPrev[i];
+  if(help.open){if(hit(0)||hit(9)){help.close();cv.focus();}}
+  else if(state==='menu'){ // d-pad moves focus through the menu buttons, A presses
+    const list=[...menu.querySelectorAll('.mbtn')],cur=list.indexOf(document.activeElement);
+    if(hit(13)||hit(12)){const n=cur<0?0:(cur+(hit(13)?1:list.length-1))%list.length;list[n].focus();}
+    if(hit(0)&&cur>=0){Snd.init();list[cur].click();}
+  }else{
+    if(hit(9)||(state!=='drive'&&hit(0))){Snd.init();action();}
+    if(hit(8))goMenu();
+  }
+  padPrev=gp.buttons.map((_,i)=>b(i));
+}
+function ctl(){const o={};for(const d in KEYMAP)o[d]=KEYMAP[d].some(c=>keys[c])||!!touch[d]||!!(pad&&pad[d]);
+  o.steer=(o.right?1:0)-(o.left?1:0);if(pad&&pad.steer)o.steer=pad.steer; // analog stick steers proportionally
+  return o;}
 
 // ---------- game state ----------
 let diff,D,li,L,ci,ghosts,players,state='menu',msg='',attempts,score,rewindF,t=0,lastSec=0,lastCd=0;
 let mode='single',net=null,onlineMap=0,others={},roomStart=0,myTime=0; // net is set by the Firebase module below
 const now=()=>Date.now()+(net?net.offset:0);
 const parts=[];
-function startSingle(d){mode='single';diff=d;D=DIFFS[d];attempts=0;score=0;loadLevel(0);}
+const rwgif=document.getElementById('rwgif'),REWIND_GIF='img/rewindu.gif';
+let gifLoaded=false;const preloadGif=()=>{if(!gifLoaded){gifLoaded=true;new Image().src=REWIND_GIF;}}; // 2.9MB: fetch only once a game starts
+function startSingle(d){preloadGif();mode='single';diff=d;D=DIFFS[d];attempts=0;score=0;loadLevel(0);}
 function loadLevel(i){li=i;L=LEVELS[i];ci=0;ghosts=[];menu.hidden=true;cv.focus();startRound();}
 function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p;return[x,y,a,w+D.spotAdd,h+D.spotAdd];}
 const timeLimit=()=>L.time*D.timeMul;
-function startRound(){const [x,y,a]=L.cars[ci].s;players=[{car:{x,y,a,v:0},rec:[],parkT:0,out:''}];state='drive';lastSec=99;}
-function showMenu(){state='menu';menu.hidden=false;Snd.engine(-1);}
+function startRound(){rwgif.hidden=true;const [x,y,a]=L.cars[ci].s;players=[{car:{x,y,a,v:0},rec:[],parkT:0,out:''}];state='drive';lastSec=99;}
+function showMenu(){rwgif.hidden=true;state='menu';menu.hidden=false;Snd.engine(-1);}
 function startOnline(i){
   if(!net){document.getElementById('netmsg').textContent='아직 서버에 연결되지 않았어요.';return;}
-  mode='online';onlineMap=i;diff='normal';D=DIFFS.normal;L=LEVELS[i];li=i;others={};ghosts=[];
+  preloadGif();mode='online';onlineMap=i;diff='normal';D=DIFFS.normal;L=LEVELS[i];li=i;others={};ghosts=[];
   state='lobby';menu.hidden=true;cv.focus();net.join(i);
 }
 function onRoomPlayers(v){others=v||{};}
@@ -348,7 +380,7 @@ function burst(x,y,n,cols,spd,life,grav,size){
 }
 
 function physics(p){
-  const c=p.car,k=ctl(),st=(k.right?1:0)-(k.left?1:0);
+  const c=p.car,k=ctl(),st=Math.max(-1,Math.min(1,k.steer));
   if(k.brake)c.v-=Math.sign(c.v)*Math.min(Math.abs(c.v),900*DT); // brake: stops hard, never reverses
   else if(k.up)c.v+=c.v<0?600*DT:380*DT;
   else if(k.down)c.v-=c.v>0?600*DT:300*DT;
@@ -376,13 +408,13 @@ function finishRound(p){
   ghosts.push({r:p.rec,color:COLORS[ci]});
   score+=100+Math.round(left*50);
   burst(p.car.x,p.car.y,46,COLORS.concat('#fff'),260,1.1,320,6);Snd.park();
-  if(ci+1<L.cars.length){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));setTimeout(()=>Snd.rewind(),250);}
+  if(ci+1<L.cars.length){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));setTimeout(()=>Snd.rewind(),250);rwgif.src='';rwgif.src=REWIND_GIF;rwgif.hidden=false;}
   else if(mode==='online'){myTime=(now()-roomStart)/1000;state='result';Snd.win();net.update({st:'done',time:Math.round(myTime*100)/100,att:attempts});}
   else state='clear';
 }
 
 function step(){
-  t+=DT;
+  t+=DT;pollPad();
   for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.x+=q.vx*DT;q.y+=q.vy*DT;q.vy+=q.g*DT;q.vx*=.98;if((q.life-=DT)<=0)parts.splice(i,1);}
   Snd.engine(state==='drive'?Math.abs(players[0].car.v)/230:-1);
   if(state==='countdown'){
@@ -525,8 +557,8 @@ function draw(){
   ctx.fillStyle='rgba(255,255,255,.6)';ctx.fillRect(0,H-7,W,7);ctx.fillStyle=COLORS[ci]||'#ffca3a';ctx.fillRect(0,H-7,W*(left/timeLimit()),7);
   if(state==='rewind'){ctx.fillStyle='rgba(120,170,255,.2)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='rgba(255,255,255,.08)';for(let y=(t*120)%8;y<H;y+=8)ctx.fillRect(0,y,W,2);
-    pill(W/2,H/2+70,'◀◀  되감기','center','#1982c4','#fff',34);face('grin',W/2,H/2-40,150,Math.sin(t*6)*.08);}
-  if(state==='fail')card(msg,'갈통짓 인정… Space / 탭으로 이 차만 다시','#ff595e',170,'galtong');
+    pill(W/2,H/2+120,'◀◀  되감기','center','#1982c4','#fff',34);}
+  if(state==='fail')card('음...수듄 ㅋ',`${msg} · Space / 탭으로 다시`,'#ff595e',170,'galtong');
   if(state==='clear')card('🎉 주차 완료!',li+1<LEVELS.length?'Space / 탭으로 다음 주차장':'Space / 탭으로 결과 보기','#2a9d8f',170,'grin');
   if(state==='end')card(`${D.label} 클리어 · ${finalScore()}점`,`재시도 ${attempts}회 · 랭킹에 기록됐어요 · Space로 메뉴`,'#ff7a45',170,'ddabong');
 }
