@@ -319,7 +319,7 @@ function goMenu(){if(mode==='online'&&net)net.leave();showMenu();}
 // ---------- gamepad (standard mapping: Xbox / PlayStation / Switch Pro) ----------
 // RT·A·↑ 전진, LT·B·↓ 후진, 왼쪽 스틱·←→ 조향, X·RB 브레이크, A·Start 계속, Back/Select 메뉴
 let pad=null,padPrev=[];
-addEventListener('gamepadconnected',e=>{document.getElementById('padhint').textContent='🎮 컨트롤러 연결됨';});
+addEventListener('gamepadconnected',e=>{document.getElementById('padhint').textContent='🎮 패드: RT·A 전진 · LT·B 후진 · 스틱 조향 · X 브레이크 · Start 계속 · Back 메뉴';});
 addEventListener('gamepaddisconnected',()=>{document.getElementById('padhint').textContent='';pad=null;});
 function pollPad(){
   const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
