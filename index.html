@@ -319,11 +319,12 @@ function goMenu(){if(mode==='online'&&net)net.leave();showMenu();}
 // ---------- gamepad (standard mapping: Xbox / PlayStation / Switch Pro) ----------
 // RT·A·↑ 전진, LT·B·↓ 후진, 왼쪽 스틱·←→ 조향, X·RB 브레이크, A·Start 계속, Back/Select 메뉴
 let pad=null,padPrev=[];
-addEventListener('gamepadconnected',e=>{document.getElementById('padhint').textContent='🎮 패드: RT·A 전진 · LT·B 후진 · 스틱 조향 · X 브레이크 · Start 계속 · Back 메뉴';});
-addEventListener('gamepaddisconnected',()=>{document.getElementById('padhint').textContent='';pad=null;});
+const padHint=document.getElementById('padhint'),PAD_WAIT='🎮 패드는 연결 후 버튼을 한 번 누르면 잡혀요',PAD_ON='🎮 패드: RT·A 전진 · LT·B 후진 · 스틱 조향 · X 브레이크 · Start 계속 · Back 메뉴';
+if(navigator.getGamepads)padHint.textContent=PAD_WAIT;
 function pollPad(){
   const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(g=>g&&g.connected);
-  if(!gp){pad=null;return;}
+  if(!gp){if(pad)padHint.textContent=PAD_WAIT;pad=null;return;}
+  if(!pad)padHint.textContent=PAD_ON;
   const b=i=>!!gp.buttons[i]&&(gp.buttons[i].pressed||gp.buttons[i].value>.3),ax=Math.abs(gp.axes[0]||0)>.18?gp.axes[0]:0;
   pad={up:b(7)||b(0)||b(12),down:b(6)||b(1)||b(13),brake:b(2)||b(5),steer:ax||(b(15)?1:0)-(b(14)?1:0)};
   const hit=i=>b(i)&&!padPrev[i];
