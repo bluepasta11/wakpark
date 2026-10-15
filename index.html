@@ -809,9 +809,9 @@ const HELP_ANIM={
  },
  gacha(g,e){
   g.save();g.translate(110,85);g.scale(Math.max(.2,Math.abs(Math.cos(e*3))),1);wCoin(g,0,0,40);g.restore();
-  const show=[SKIN.peri,SKIN.snail,FORM.gt][Math.floor(e/1.2)%3];
-  g.save();g.translate(330,85);g.scale(3.2,3.2);drawLook(g,show.half?{f:show.id,s:'red'}:{f:'sedan',s:show.id});g.restore();
-  pill2(g,330,10,`${show.n} · ${show.r}`,TIER[show.r]);
+  // mystery cards only: never reveal real items (especially high tiers) in the guide
+  ['일반','희귀','영웅'].forEach((tn,i)=>{const x=250+i*80,y=50+Math.sin(e*3+i)*6;g.fillStyle=TIER[tn];rr(g,x-30,y-4,60,80,10);g.fill();g.fillStyle='#fff';rr(g,x-26,y,52,72,8);g.fill();
+    g.fillStyle=TIER[tn];g.font='30px Jua';g.textAlign='center';g.fillText('?',x,y+46);g.font='12px Jua';g.fillText(tn,x,y+66);});
  },
 };
 function pill2(g,x,y,s,bg){g.font='15px Jua';const w=g.measureText(s).width+20;g.fillStyle=bg;rr(g,x-w/2,y,w,26,13);g.fill();g.fillStyle='#fff';g.textAlign='center';g.fillText(s,x,y+18);}
@@ -1101,7 +1101,7 @@ function draw(){
   const frame=state==='rewind'?Math.max(0,rewindF):players[0].rec.length;
   for(const g of ghosts){const q=ghostAt(g.r,frame);drawCar(ctx,q[0],q[1],q[2],g.color,state==='rewind'?.85:.6,g.color,myLook());}
   if(mode==='online')for(const id in live){const o=live[id],pl=others[id];if(id===net.uid||!pl||pl.st!=='race'||o.x==null)continue;
-    drawCar(ctx,o.x,o.y,o.a,'#ffffff',.5);pill(o.x,o.y-48,String(pl.name).slice(0,12),'center','rgba(255,255,255,.8)','#2b2d42',13);}
+    const [lf,ls]=String(pl.lk||'').split('.');drawCar(ctx,o.x,o.y,o.a,'#ffffff',.55,null,{f:FORM[lf]?lf:'sedan',s:SKIN[ls]?ls:undefined});pill(o.x,o.y-48,String(pl.name).slice(0,12),'center','rgba(255,255,255,.8)','#2b2d42',13);}
   const p=players[0];
   if(state==='drive'||state==='fail'){const c=p.car;drawCar(ctx,c.x,c.y,c.a,COLORS[ci%COLORS.length],p.out?.45:1,COLORS[ci%COLORS.length],myLook());
     if(state==='drive'&&p.pct>0){const ok=p.pct===100;
@@ -1313,6 +1313,7 @@ onAuthStateChanged(auth,u=>{
       if(r.priv&&r.host!==u.uid)data.pw=await hash(code,pw||'');
       try{await set(pr,data);}catch(e){throw new Error(r.priv?'비밀번호가 틀렸어요.':'입장할 수 없어요.');}
       if(data.pw)update(pr,{pw:null});
+      update(pr,{lk:PROF.eq.f+'.'+PROF.eq.s}).catch(()=>{}); // separate write: if the rules don't allow it yet, joining still works
       onDisconnect(pr).remove();
       const lr=ref(rt,`live/${code}/${u.uid}`);onDisconnect(lr).remove();
       me=pr;liveMe=lr;api.room=code;api.isHost=r.host===u.uid;
