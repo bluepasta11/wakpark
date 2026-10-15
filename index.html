@@ -31,7 +31,13 @@ canvas{display:block;touch-action:none;outline:none}
 .rbtn.force{background:var(--red);color:#fff;box-shadow:0 3px 0 #c43e43}
 #menu{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:18px;background:rgba(255,250,240,.8);backdrop-filter:blur(3px);overflow:auto}
 #menu[hidden]{display:none}
-.mgrid{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;width:100%;max-width:880px;margin:auto 0}
+.mgrid{display:grid;grid-template-columns:1fr;gap:16px;width:100%;max-width:560px;margin:auto 0}
+.mbtn.big{padding:22px 20px;font-size:28px;margin-bottom:12px}
+.mbtn.big small{font-size:14px}
+.online{background:var(--yellow);color:#4a3b00;box-shadow:0 4px 0 #d4a419}
+.back{border:0;background:none;font:inherit;font-weight:700;color:var(--muted);cursor:pointer;padding:2px 0 8px}
+.back:hover,.back:focus-visible{color:var(--fg)}
+.limit{color:var(--fg)!important;font-size:14px!important;background:#fff3e6;border-radius:12px;padding:12px}
 .mtitle{grid-column:1/-1;text-align:center;font-family:Jua,sans-serif;font-size:46px;margin:0;color:var(--accent);text-shadow:0 3px 0 #fff;display:flex;align-items:center;justify-content:center;gap:12px}
 .mlogo{width:66px;height:66px;border-radius:18px;border:4px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.18);object-fit:cover}
 .mcol{background:#fff;border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(60,80,120,.12)}
@@ -95,7 +101,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
 @media (max-width:900px){
   header{height:auto;flex-wrap:wrap}h1{font-size:28px}h1 small{display:none}
   .layout{grid-template-columns:1fr;height:auto;min-height:0}
-  .mgrid{grid-template-columns:1fr}.mtitle{font-size:32px}
+  .mtitle{font-size:32px}
 }
 </style>
 </head>
@@ -113,7 +119,13 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
       <div id="menu">
         <div class="mgrid">
           <p class="mtitle"><img src="img/wak.jpg" alt="우왁굳" class="mlogo">WAK PARK</p>
-          <div class="mcol">
+          <div class="mcol" id="mhome">
+            <button class="mbtn big normal" id="goSingle">🚗 싱글 플레이 <small>8개 주차장 · 랭킹 도전</small></button>
+            <button class="mbtn big online" id="goOnline">🌐 온라인 대전 <small>최대 100명 동시 접속</small></button>
+            <button class="btn" data-help style="width:100%;margin-top:4px">❓ 게임 방법 보기</button>
+          </div>
+          <div class="mcol" id="msingle" hidden>
+            <button class="back" data-back>← 뒤로</button>
             <h2>🚗 싱글 플레이</h2>
             <p>8개 주차장을 차례로 공략해요. 남은 시간이 점수가 되고 재시도하면 감점이에요.</p>
             <button class="mbtn easy" data-diff="easy">쉬움 <small>시간 넉넉 · 넓은 칸 · ×1</small></button>
@@ -121,8 +133,12 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
             <button class="mbtn hard" data-diff="hard">어려움 <small>시간 촉박 · 좁은 칸 · ×2.2</small></button>
             <button class="btn" data-help style="width:100%;margin-top:4px">❓ 게임 방법 보기</button>
           </div>
-          <div class="mcol">
+          <div class="mcol" id="monline" hidden>
+            <button class="back" data-back>← 뒤로</button>
             <h2>🌐 온라인 대전</h2>
+            <p>온라인은 동시에 최대 100명까지 접속할 수 있어요. 싱글 플레이는 인원 제한이 없어요.</p>
+            <div id="onlimit" hidden><p class="limit">🚧 <b>온라인 입장 제한</b><br>지금 온라인 접속자가 많거나(최대 100명) 연결이 불안정해요. 잠시 후 다시 시도해 주세요.</p><button class="mbtn normal" id="onretry">다시 시도</button></div>
+            <div id="onbody" hidden>
             <label>닉네임 <input type="text" id="nick" maxlength="12" autocomplete="off"></label>
             <div class="otabs" role="tablist">
               <button class="otab" data-otab="list" aria-selected="true">방 목록</button>
@@ -142,6 +158,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
               <label>방 코드 <input type="text" id="jcode" maxlength="5" autocomplete="off" style="text-transform:uppercase"></label>
               <label>비밀번호 (비밀방만) <input type="password" id="jpw" maxlength="20"></label>
               <button class="mbtn normal" id="jroom">입장하기</button>
+            </div>
             </div>
             <p id="netmsg">서버 연결 중…</p>
           </div>
@@ -185,7 +202,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
     <li><span class="ic">⌨️</span><div><b>키보드</b><kbd>↑</kbd> 전진, <kbd>↓</kbd> 브레이크(멈추면 후진), <kbd>←</kbd><kbd>→</kbd> 조향, <kbd>Space</kbd> 급정거, <kbd>Enter</kbd> 주차 확정, <kbd>Esc</kbd> 메뉴. WASD도 돼요. 차는 화면 위쪽으로 출발해요.</div></li>
     <li><span class="ic">🎮</span><div><b>게임패드</b>RT 액셀(누른 만큼), LT 브레이크(멈추면 후진), 왼쪽 스틱 조향, B 급정거, A 주차 확정, Start 계속, Back 메뉴. 메뉴는 십자키 ↑↓와 A로 골라요. 패드를 연결하고 버튼을 한 번 눌러야 잡혀요. 패드로 마우스 커서가 움직이면 <kbd>Win</kbd>+<kbd>G</kbd> → 설정 → 게임패드 커서를 켰다가 다시 꺼 보세요.</div></li>
     <li><span class="ic">🏆</span><div><b>점수와 랭킹</b>빨리 주차할수록 점수가 높고 재시도하면 감점이에요. 난이도 배율이 곱해져서 싱글 랭킹에 올라가요.</div></li>
-    <li><span class="ic">🌐</span><div><b>온라인 대전</b>방을 만들거나(공개/비밀방, 맵, 인원 선택) 목록에서 들어가요. 방장이 <kbd>Space</kbd>(패드 A)를 누르면 3초 뒤 모두 동시에 출발하고(아직 달리는 사람이 있으면 대기), 방장은 <kbd>F</kbd>(패드 Y)로 5초 뒤 전원 강제 재시작하거나 참가자를 강퇴할 수 있어요. 모든 차를 가장 빨리 주차한 사람이 1등이에요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</div></li>
+    <li><span class="ic">🌐</span><div><b>온라인 대전</b>메뉴에서 '온라인 대전'을 눌러야 서버에 연결돼요(동시 접속 최대 100명). 방을 만들거나(공개/비밀방, 맵, 인원 선택) 목록에서 들어가요. 방장이 <kbd>Space</kbd>(패드 A)를 누르면 3초 뒤 모두 동시에 출발하고(아직 달리는 사람이 있으면 대기), 방장은 <kbd>F</kbd>(패드 Y)로 5초 뒤 전원 강제 재시작하거나 참가자를 강퇴할 수 있어요. 모든 차를 가장 빨리 주차한 사람이 1등이에요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</div></li>
   </ul>
   <div class="ft"><button class="mbtn normal" id="helpClose">알겠어요!</button></div>
 </dialog>
@@ -425,7 +442,7 @@ document.querySelectorAll('#touch button[data-k]').forEach(b=>{
 document.getElementById('tpark').addEventListener('pointerdown',e=>{e.preventDefault();state==='drive'?confirmPark():action();});
 cv.addEventListener('pointerdown',()=>{cv.focus();action();});
 const KEYMAP={up:['ArrowUp','KeyW'],down:['ArrowDown','KeyS'],left:['ArrowLeft','KeyA'],right:['ArrowRight','KeyD'],brake:['Space','ShiftLeft','ShiftRight']};
-function goMenu(){if(mode==='online'&&net)net.leave();mode='single';showMenu();}
+function goMenu(){const was=mode;if(was==='online'&&net)net.leave();mode='single';showMenu(was==='online'?'online':'home');}
 
 // ---------- gamepad (standard mapping: Xbox / PlayStation / Switch Pro) ----------
 // RT 액셀(아날로그) · LT 브레이크→후진(아날로그) · 왼쪽 스틱 조향 · B/X 급정거 · A 주차 확정/계속 · Start 계속 · Back 메뉴
@@ -448,7 +465,7 @@ function pollPad(){
   const hit=i=>b(i)&&!padPrev[i];
   if(help.open){if(hit(0)||hit(9)){help.close();cv.focus();}}
   else if(state==='menu'){ // d-pad moves focus through the menu buttons, A presses
-    const list=[...menu.querySelectorAll('.mbtn,.otab,.rjoin:not(:disabled)')].filter(e=>e.offsetParent),cur=list.indexOf(document.activeElement);
+    const list=[...menu.querySelectorAll('.mbtn,.back,.otab,.rjoin:not(:disabled)')].filter(e=>e.offsetParent),cur=list.indexOf(document.activeElement);
     if(hit(13)||hit(12)){const n=cur<0?0:(cur+(hit(13)?1:list.length-1))%list.length;list[n].focus();}
     if(hit(0)&&cur>=0){Snd.init();list[cur].click();}
   }else{
@@ -482,7 +499,25 @@ function startRound(){
   players=[{car:{x,y,a,v:0},rec:[],parkT:0,pct:0,crooked:false,out:''}];state='drive';lastSec=99;
   if(mode==='online'&&net)net.status({ci});
 }
-function showMenu(){rwgif.hidden=true;state='menu';menu.hidden=false;Snd.engine(-1);watchRooms(true);}
+function showMenu(pane='home'){rwgif.hidden=true;state='menu';menu.hidden=false;Snd.engine(-1);menuPane(pane);}
+// only the online pane touches the Realtime Database (100 simultaneous connections on the free plan)
+let onlineOpen=false,wantOnline=false;
+function menuPane(n){
+  for(const id of['home','single','online'])document.getElementById('m'+id).hidden=id!==n;
+  if(n==='online')openOnline();else closeOnline();
+}
+function openOnline(){
+  wantOnline=true;if(onlineOpen)return watchRooms(true);
+  document.getElementById('onbody').hidden=true;document.getElementById('onlimit').hidden=true;
+  if(!net)return netNotice('서버 준비 중…');
+  netNotice('온라인 서버에 연결 중…');onlineOpen=true;
+  net.connect(ok=>{
+    if(!wantOnline)return;
+    if(ok){netNotice('');document.getElementById('onbody').hidden=false;watchRooms(true);}
+    else{onlineOpen=false;net.disconnect();netNotice('');document.getElementById('onlimit').hidden=false;}
+  });
+}
+function closeOnline(){wantOnline=false;watchRooms(false);if(onlineOpen&&net){net.disconnect();onlineOpen=false;}}
 function enterRoom(code,r){curRound=-1;
   preloadGif();watchRooms(false);mode='online';roomCode=code;room=r;onlineMap=r.map;diff='normal';D=DIFFS.normal;
   L=LEVELS[r.map];li=r.map;ghosts=[];players=[];others=r.players||{};live={};state='lobby';menu.hidden=true;cv.focus();camY=Math.max(0,L.h-VH);
@@ -509,7 +544,7 @@ function action(){
   else if(state==='clear'){
     if(li+1<LEVELS.length)loadLevel(li+1);
     else{state='end';Snd.win();submitScore(diff,finalScore());}
-  }else if(state==='end')showMenu();
+  }else if(state==='end')showMenu('single');
 }
 const finalScore=()=>Math.max(0,Math.round(score*D.mult));
 const ghostAt=(r,i)=>r[Math.min(i,r.length-1)];
@@ -783,6 +818,10 @@ requestAnimationFrame(loop);
 // ---------- menu, online lobby UI & help ----------
 const $=id=>document.getElementById(id),netmsgEl=$('netmsg');
 const netNotice=s=>{netmsgEl.textContent=s;};
+$('goSingle').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('single');});
+$('goOnline').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('online');});
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{Snd.click();menuPane('home');}));
+$('onretry').addEventListener('click',()=>{Snd.click();openOnline();});
 $('rmap').innerHTML=LEVELS.map((l,i)=>`<option value="${i}">${i+1}. ${l.name} (차 ${l.cars.length}대)</option>`).join('');
 document.querySelectorAll('.otab').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.otab').forEach(x=>x.setAttribute('aria-selected',x===b));
@@ -811,7 +850,7 @@ $('jroom').addEventListener('click',()=>{Snd.init();Snd.click();joinRoom($('jcod
 let roomsUnsub=null;
 function watchRooms(on){
   if(roomsUnsub){roomsUnsub();roomsUnsub=null;}
-  if(on&&net)roomsUnsub=net.watchRooms(renderRooms);
+  if(on&&net&&onlineOpen)roomsUnsub=net.watchRooms(renderRooms);
 }
 function renderRooms(all){
   const ul=$('roomlist');ul.textContent='';
@@ -861,7 +900,7 @@ renderBoard(null);
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {getAuth,signInAnonymously,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,setDoc,query,orderBy,limit,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {getDatabase,ref,set,get,update,remove,onValue,onDisconnect} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import {getDatabase,ref,set,get,update,remove,onValue,onDisconnect,goOnline,goOffline} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 const app=initializeApp({
   apiKey:"AIzaSyAWqL5uMxFWPYO7fHmMIPw8ANjWKzMmqSQ",
   authDomain:"wakpark.firebaseapp.com",
@@ -929,12 +968,18 @@ onAuthStateChanged(auth,u=>{
     setStart(ts,force){if(api.room&&api.isHost)update(ref(rt,'rooms/'+api.room),{start:Math.round(ts),round:(room&&room.round||0)+1,force:!!force});},
     kick(id){if(api.room&&api.isHost)update(ref(rt,'rooms/'+api.room),{['players/'+id]:null,['kicked/'+id]:true});},
     status(v){if(me)update(me,v);},
+    connect(cb){ // open the realtime link; if it can't connect in 8s (full at 100, or bad network) report failure
+      goOnline(rt);let done=false;
+      const tm=setTimeout(()=>{if(!done){done=true;cb(false);}},8000);
+      api._conn=[onValue(ref(rt,'.info/connected'),s=>{if(s.val()&&!done){done=true;clearTimeout(tm);cb(true);}}),
+                 onValue(ref(rt,'.info/serverTimeOffset'),s=>{api.offset=s.val()||0;}),()=>clearTimeout(tm)];
+    },
+    disconnect(){(api._conn||[]).forEach(f=>f());api._conn=[];goOffline(rt);},
     pos(v){if(!liveMe)return;const t=Date.now();if(t-lastUp>140){lastUp=t;set(liveMe,v);}}, // ~7 updates/s
   };
-  onValue(ref(rt,'.info/serverTimeOffset'),s=>{api.offset=s.val()||0;});
-  net=api;netNotice('');
+  net=api;
   api.watchBoard(tab);
-  if(state==='menu')watchRooms(true);
+  if(wantOnline)openOnline();
 });
 </script>
 </body>
