@@ -25,6 +25,10 @@ h1 small{font-size:14px;color:var(--muted);text-shadow:none;font-family:system-u
 canvas{display:block;touch-action:none;outline:none}
 #rwgif{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-3deg);width:26%;max-width:300px;aspect-ratio:1;object-fit:cover;border:6px solid #fff;border-radius:20px;box-shadow:0 10px 24px rgba(20,30,50,.35);pointer-events:none}
 #rwgif[hidden]{display:none}
+#roomctl{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:94%;background:rgba(255,250,240,.92);padding:8px 10px;border-radius:14px;box-shadow:0 6px 16px rgba(20,30,50,.2)}
+#roomctl[hidden]{display:none}
+.rbtn{border:0;border-radius:10px;padding:7px 11px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:var(--fg);box-shadow:0 3px 0 #e2d6c0}
+.rbtn.force{background:var(--red);color:#fff;box-shadow:0 3px 0 #c43e43}
 #menu{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:18px;background:rgba(255,250,240,.8);backdrop-filter:blur(3px);overflow:auto}
 #menu[hidden]{display:none}
 .mgrid{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;width:100%;max-width:880px;margin:auto 0}
@@ -105,6 +109,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
     <div id="wrap">
       <canvas id="c" tabindex="0" aria-label="Wak Park 게임 화면"></canvas>
       <img id="rwgif" alt="되감기" hidden>
+      <div id="roomctl" hidden><button class="rbtn force" id="forceBtn">⚡ 강제 재시작</button><span id="kicklist"></span></div>
       <div id="menu">
         <div class="mgrid">
           <p class="mtitle"><img src="img/wak.jpg" alt="우왁굳" class="mlogo">WAK PARK</p>
@@ -180,7 +185,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
     <li><span class="ic">⌨️</span><div><b>키보드</b><kbd>↑</kbd> 전진, <kbd>↓</kbd> 브레이크(멈추면 후진), <kbd>←</kbd><kbd>→</kbd> 조향, <kbd>Space</kbd> 급정거, <kbd>Enter</kbd> 주차 확정, <kbd>Esc</kbd> 메뉴. WASD도 돼요. 차는 화면 위쪽으로 출발해요.</div></li>
     <li><span class="ic">🎮</span><div><b>게임패드</b>RT 액셀(누른 만큼), LT 브레이크(멈추면 후진), 왼쪽 스틱 조향, B 급정거, A 주차 확정, Start 계속, Back 메뉴. 메뉴는 십자키 ↑↓와 A로 골라요. 패드를 연결하고 버튼을 한 번 눌러야 잡혀요. 패드로 마우스 커서가 움직이면 <kbd>Win</kbd>+<kbd>G</kbd> → 설정 → 게임패드 커서를 켰다가 다시 꺼 보세요.</div></li>
     <li><span class="ic">🏆</span><div><b>점수와 랭킹</b>빨리 주차할수록 점수가 높고 재시도하면 감점이에요. 난이도 배율이 곱해져서 싱글 랭킹에 올라가요.</div></li>
-    <li><span class="ic">🌐</span><div><b>온라인 대전</b>방을 만들거나(공개/비밀방, 맵, 인원 선택) 목록에서 들어가요. 방장이 <kbd>Space</kbd>(패드 A)를 누르면 3초 뒤 모두 동시에 출발하고, 모든 차를 가장 빨리 주차한 사람이 1등이에요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</div></li>
+    <li><span class="ic">🌐</span><div><b>온라인 대전</b>방을 만들거나(공개/비밀방, 맵, 인원 선택) 목록에서 들어가요. 방장이 <kbd>Space</kbd>(패드 A)를 누르면 3초 뒤 모두 동시에 출발하고(아직 달리는 사람이 있으면 대기), 방장은 <kbd>F</kbd>(패드 Y)로 5초 뒤 전원 강제 재시작하거나 참가자를 강퇴할 수 있어요. 모든 차를 가장 빨리 주차한 사람이 1등이에요. 다른 사람 차는 반투명으로 보이고 부딪히지 않아요.</div></li>
   </ul>
   <div class="ft"><button class="mbtn normal" id="helpClose">알겠어요!</button></div>
 </dialog>
@@ -406,6 +411,7 @@ addEventListener('keydown',e=>{
   if(e.repeat)return; // a held brake shouldn't skip screens
   if((e.code==='Enter'||e.code==='KeyE')&&state==='drive')confirmPark();
   else if(e.code==='Space'||e.code==='Enter'||e.code==='KeyR')action();
+  if(e.code==='KeyF')forceRestart();
   if(e.code==='Escape')goMenu();
 });
 addEventListener('keyup',e=>{keys[e.code]=false;});
@@ -448,6 +454,7 @@ function pollPad(){
   }else{
     if(state==='drive'&&hit(0))confirmPark();
     else if(hit(9)||hit(0)){Snd.init();action();}
+    if(hit(3))forceRestart();
     if(hit(8))goMenu();
   }
   padPrev=Array.from({length:20},(_,i)=>b(i));
@@ -461,7 +468,7 @@ function ctl(){
 
 // ---------- game state ----------
 let diff,D,li,L,ci,ghosts,players=[],state='menu',msg='',attempts,score,rewindF,t=0,lastSec=0,lastCd=0;
-let mode='single',net=null,onlineMap=0,others={},live={},room=null,roomCode='',roomStart=0,myTime=0; // net is set by the Firebase module below
+let mode='single',net=null,onlineMap=0,others={},live={},room=null,roomCode='',roomStart=0,myTime=0,curRound=-1,forced=false,roomMsg='',roomMsgT=-9; // net is set by the Firebase module below
 const now=()=>Date.now()+(net?net.offset:0);
 const parts=[];
 const rwgif=document.getElementById('rwgif'),REWIND_GIF='img/rewindu.gif';
@@ -476,7 +483,7 @@ function startRound(){
   if(mode==='online'&&net)net.status({ci});
 }
 function showMenu(){rwgif.hidden=true;state='menu';menu.hidden=false;Snd.engine(-1);watchRooms(true);}
-function enterRoom(code,r){
+function enterRoom(code,r){curRound=-1;
   preloadGif();watchRooms(false);mode='online';roomCode=code;room=r;onlineMap=r.map;diff='normal';D=DIFFS.normal;
   L=LEVELS[r.map];li=r.map;ghosts=[];players=[];others=r.players||{};live={};state='lobby';menu.hidden=true;cv.focus();camY=Math.max(0,L.h-VH);
 }
@@ -484,11 +491,20 @@ function onRoomUpdate(r){
   if(mode!=='online')return;
   if(!r){netNotice('방이 닫혔어요. (방장이 나갔어요)');goMenu();return;}
   room=r;others=r.players||{};
-  if(r.start&&r.start>now()&&r.start!==roomStart&&(state==='lobby'||state==='result')){roomStart=r.start;state='countdown';lastCd=0;}
+  if(!others[net.uid]){netNotice('방장에게 강퇴당했어요.');goMenu();return;}
+  // each start bumps room.round; a forced restart pulls everyone in, even mid-race
+  if(r.start&&r.start>now()&&r.round!==curRound&&(r.force||state==='lobby'||state==='result')){
+    curRound=r.round;roomStart=r.start;forced=!!r.force;rwgif.hidden=true;state='countdown';lastCd=0;}
 }
+const racingNow=()=>room?Object.values(others).filter(p=>p.st==='race'&&p.round===room.round).length:0;
+function say(s){roomMsg=s;roomMsgT=t;}
+function forceRestart(){if(!(net&&net.isHost)||!(state==='lobby'||state==='result'))return;net.setStart(now()+5000,true);}
 function onLive(v){live=v;}
 function action(){
-  if(state==='lobby'||state==='result'){if(net&&net.isHost)net.setStart(now()+3000);else Snd.nope();}
+  if(state==='lobby'||state==='result'){
+    if(!(net&&net.isHost)){Snd.nope();say('방장만 출발시킬 수 있어요');}
+    else if(racingNow()){Snd.nope();say(`아직 ${racingNow()}명 주행 중이에요 · 기다리거나 ⚡ 강제 재시작 (F / 패드 Y)`);}
+    else net.setStart(now()+3000,false);}
   else if(state==='fail')startRound();
   else if(state==='clear'){
     if(li+1<LEVELS.length)loadLevel(li+1);
@@ -541,7 +557,7 @@ function finishRound(p){
   score+=100+Math.round(left*50);
   burst(p.car.x,p.car.y,46,COLORS.concat('#fff'),260,1.1,320,6);Snd.park();
   if(ci+1<L.cars.length){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));setTimeout(()=>Snd.rewind(),250);rwgif.src='';rwgif.src=REWIND_GIF;rwgif.hidden=false;}
-  else if(mode==='online'){myTime=(now()-roomStart)/1000;state='result';Snd.win();net.status({st:'done',time:Math.round(myTime*100)/100,att:attempts});}
+  else if(mode==='online'){myTime=(now()-roomStart)/1000;state='result';Snd.win();net.status({st:'done',time:Math.round(myTime*100)/100,att:attempts,round:curRound});}
   else state='clear';
 }
 function camTarget(){
@@ -560,7 +576,7 @@ function step(){
   if(state==='countdown'){
     const sec=Math.ceil((roomStart-now())/1000);
     if(sec!==lastCd&&sec>0){lastCd=sec;Snd.beep(false);}
-    if(now()>=roomStart){Snd.beep(true);attempts=0;score=0;loadLevel(onlineMap);net.status({st:'race',ci:0,time:0});}
+    if(now()>=roomStart){Snd.beep(true);attempts=0;score=0;loadLevel(onlineMap);net.status({st:'race',ci:0,time:0,round:curRound});}
     return;
   }
   if(state==='rewind'){rewindF-=4;if(rewindF<=0){ci++;startRound();}return;}
@@ -732,6 +748,7 @@ function draw(){
 }
 function drawRoom(){
   const list=Object.entries(others).map(([id,o])=>({id,...o}));
+  for(const o of list)if(room&&o.round!==room.round&&o.st!=='lobby')o.st='lobby'; // a record from an older round isn't this round's result
   if(state==='result')list.sort((a,b)=>(b.st==='done')-(a.st==='done')||(a.st==='done'?a.time-b.time:(b.ci||0)-(a.ci||0)));
   const rows=Math.min(list.length,8),won=state==='result'&&list[0]&&list[0].id===net.uid&&list[0].st==='done';
   const title=state==='result'?`🏁 결과 · ${L.name}`:`${room&&room.priv?'🔒 ':''}${room?room.name:''}`;
@@ -742,12 +759,25 @@ function drawRoom(){
     text(`${state==='result'?(i+1)+'. ':''}${host?'👑 ':''}${String(o.name).slice(0,12)}${me?' (나)':''}`,cx-14,y+i*30,19,me?'#ff7a45':'#2b2d42','right');
     text(st,cx+14,y+i*30,17,'#6c6f80','left');
   });
-  if(state==='countdown')pill(VW/2,VH/2-150,String(Math.max(1,Math.ceil((roomStart-now())/1000))),'center','#8ac926','#fff',60);
+  if(state==='countdown'){if(forced)pill(VW/2,VH/2-230,'⚡ 방장이 강제 재시작했어요!','center','#ff595e','#fff',22);
+    pill(VW/2,VH/2-150,String(Math.max(1,Math.ceil((roomStart-now())/1000))),'center','#8ac926','#fff',60);}
+  else if(t-roomMsgT<3.5)pill(VW/2,VH/2-170,roomMsg,'center','#ffca3a','#4a3b00',18);
   else text(net&&net.isHost?(state==='result'?'Space / 패드 A: 한 판 더 · Esc 방 나가기(방이 닫혀요)':'Space / 패드 A: 출발! (3초 뒤 모두 동시 출발) · Esc 방 나가기'):'방장이 출발시키길 기다리는 중… · Esc 나가기',cx,y+rows*30+10,16,'#6c6f80');
 }
 
+const roomctl=document.getElementById('roomctl'),kicklist=document.getElementById('kicklist');let kickKey='';
+function syncRoomCtl(){
+  const show=mode==='online'&&net&&net.isHost&&(state==='lobby'||state==='result');
+  if(roomctl.hidden===show)roomctl.hidden=!show;
+  if(!show)return;
+  const ids=Object.keys(others).filter(id=>id!==net.uid),key=ids.map(id=>id+others[id].name).join('|');
+  if(key===kickKey)return;kickKey=key;kicklist.textContent='';
+  for(const id of ids){const b=document.createElement('button');b.className='rbtn';b.textContent='🚫 '+String(others[id].name).slice(0,12)+' 강퇴';
+    b.addEventListener('click',()=>{Snd.click();net.kick(id);say(`${others[id]?others[id].name:''}님을 강퇴했어요`);});kicklist.append(b);}
+}
+document.getElementById('forceBtn').addEventListener('click',()=>{Snd.click();forceRestart();});
 let acc=0,last=performance.now();
-function loop(n){acc+=Math.min(0.1,(n-last)/1000);last=n;while(acc>=DT){step();acc-=DT;}draw();requestAnimationFrame(loop);}
+function loop(n){acc+=Math.min(0.1,(n-last)/1000);last=n;while(acc>=DT){step();acc-=DT;}draw();syncRoomCtl();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 
 // ---------- menu, online lobby UI & help ----------
@@ -877,6 +907,7 @@ onAuthStateChanged(auth,u=>{
       if(api.room!==code)api.leave();
       const snap=await get(ref(rt,'rooms/'+code));if(!snap.exists())throw new Error('방을 찾을 수 없어요.');
       const r=snap.val(),ps=r.players||{};
+      if(r.kicked&&r.kicked[u.uid])throw new Error('이 방에서 강퇴됐어요.');
       if(Object.keys(ps).length>=r.max&&!ps[u.uid])throw new Error('방이 꽉 찼어요.'); // shortcut: client-side cap, rules can't count children
       const pr=ref(rt,`rooms/${code}/players/${u.uid}`),data={name:nick(),st:'lobby',ci:0};
       if(r.priv&&r.host!==u.uid)data.pw=await hash(code,pw||'');
@@ -895,7 +926,8 @@ onAuthStateChanged(auth,u=>{
       if(api.room&&api.isHost){const c=api.room;remove(ref(rt,'roomSecrets/'+c)).catch(()=>{}).then(()=>remove(ref(rt,'rooms/'+c)));onDisconnect(ref(rt,'rooms/'+c)).cancel();}
       api.room=null;api.isHost=false;
     },
-    setStart(ts){if(api.room&&api.isHost)set(ref(rt,`rooms/${api.room}/start`),Math.round(ts));},
+    setStart(ts,force){if(api.room&&api.isHost)update(ref(rt,'rooms/'+api.room),{start:Math.round(ts),round:(room&&room.round||0)+1,force:!!force});},
+    kick(id){if(api.room&&api.isHost)update(ref(rt,'rooms/'+api.room),{['players/'+id]:null,['kicked/'+id]:true});},
     status(v){if(me)update(me,v);},
     pos(v){if(!liveMe)return;const t=Date.now();if(t-lastUp>140){lastUp=t;set(liveMe,v);}}, // ~7 updates/s
   };
