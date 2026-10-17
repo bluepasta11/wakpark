@@ -180,14 +180,14 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
           <p class="mtitle"><img src="img/wak.jpg" alt="우왁굳" class="mlogo">WAK PARK</p>
           <div class="mcol" id="mhome">
             <div class="daily"><div><b>📅 오늘의 주차장</b><span id="dyInfo">불러오는 중…</span></div><button class="mbtn normal" id="goDaily">▶ 도전</button></div>
-            <button class="mbtn big normal" id="goSingle">🚗 싱글 플레이 <small>30개 주차장 · 난이도 5단계</small></button>
+            <button class="mbtn big normal" id="goSingle">🚗 싱글 플레이 <small>31개 주차장 · ♾️ 무한 주차 · 난이도 5단계</small></button>
             <button class="mbtn big online" id="goOnline">🌐 온라인 대전 <small>최대 100명 동시 접속</small></button>
             <button class="mbtn big shop" id="goShop">🎁 뽑기 · 차고 <small>🪙 <span class="coinN"></span> 왁코인</small></button>
           </div>
           <div class="mcol" id="msingle" hidden>
             <button class="back" data-back>← 뒤로</button>
             <h2>🚗 싱글 플레이</h2>
-            <p>난이도를 고르고 30개 맵 중 하나를 골라요. 맵을 깨면 다음 맵이 열려요.</p>
+            <p>난이도를 고르고 31개 맵 중 하나를 골라요. 맵을 깨면 다음 맵이 열려요. ♾️ 무한 주차는 맵 선택 화면에 있어요.</p>
             <button class="mbtn beginner" data-diff="beginner">초보 <small>시간 2배 · 판정 아주 너그러움 · ×0.7</small></button>
             <button class="mbtn easy" data-diff="easy">쉬움 <small>시간 넉넉 · 판정 너그러움 · ×1</small></button>
             <button class="mbtn normal" data-diff="normal">보통 <small>×1.5</small></button>
@@ -201,6 +201,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
             <canvas id="mprev" width="720" height="400"></canvas>
             <div class="mpinfo"><b id="mpname"></b><span id="mpmeta"></span></div>
             <button class="mbtn normal" id="mplay">▶ 시작</button>
+            <button class="mbtn online" id="goInf">♾️ 무한 주차</button>
             <div class="mapgrid" id="mapgrid"></div>
           </div>
           <div class="mcol" id="monline" hidden>
@@ -220,6 +221,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
               <label>방 이름 <input type="text" id="rname" maxlength="20" autocomplete="off"></label>
               <label>맵 <select id="rmap"></select></label>
               <label>모드 <select id="rmode"><option value="time">⏱ 타임어택 · 가장 빨리 다 주차하면 1등</option><option value="first">🏁 선착순 · N명 통과하면 판 끝</option><option value="surv">💀 서바이벌 · 판마다 꼴찌 탈락</option><option value="sum3">🏆 3판 합산 · 맵 3개 순위 점수 합계</option><option value="relay">🤝 팀 릴레이 · 팀원이 맵을 이어 달리기</option><option value="coop">🏰 협동 파크 · 4v4 팀이 문 열어 주며 왕관 먼저</option></select></label>
+              <label>난이도 <select id="rdiff"><option value="beginner">초보</option><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option><option value="master">고수</option></select></label>
               <label id="rquotal" hidden>통과 인원 <select id="rquota"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></label>
               <label>최대 인원 <select id="rmax"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></label>
               <label class="row"><input type="checkbox" id="rpriv"> 🔒 비밀방 (비밀번호로만 입장)</label>
@@ -281,8 +283,9 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
       <label>🔊 효과음 <input type="range" id="vsfx" min="0" max="100" aria-label="효과음 볼륨"></label>
     </section>
     <section class="card" id="board">
-      <h2>🏆 싱글 플레이 랭킹<small>30개 맵 최고점 합산 · 싱글 전용</small></h2>
-      <div class="tabs" role="tablist">
+      <h2>🏆 싱글 플레이 랭킹<small id="bsub">31개 맵 최고점 합산 · 싱글 전용</small></h2>
+      <div class="tabs" id="bmode" role="tablist"><button role="tab" data-bm="maps" aria-selected="true">🗺️ 맵 합산</button><button role="tab" data-bm="inf">♾️ 무한 주차</button></div>
+      <div class="tabs" id="dtabs" role="tablist">
         <button role="tab" data-tab="beginner">초보</button><button role="tab" data-tab="easy">쉬움</button><button role="tab" data-tab="normal" aria-selected="true">보통</button><button role="tab" data-tab="hard">어려움</button><button role="tab" data-tab="master">고수</button>
       </div>
       <ol id="rows"></ol>
@@ -303,7 +306,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
     <button data-htab="goal" aria-selected="true">🎯 목표</button><button data-htab="keys">🕹 조작</button><button data-htab="online">🌐 온라인</button><button data-htab="gacha">🎁 뽑기</button><button data-htab="save">💾 저장</button>
   </div>
   <div class="hsec" data-hsec="goal"><canvas width="960" height="340" data-anim="goal"></canvas><ul>
-    <li>빛나는 칸에 주차 → <b>100%</b>면 <kbd>Enter</kbd>로 확정</li><li>주차하면 시간이 <b>되감기</b>고 다음 차 차례</li><li>과거의 나 · 벽 · 다른 차에 부딪히면 그 차만 다시</li><li>난이도 5단계 · 맵 30개 · 맵마다 ★ 3개 · 깨면 다음 맵 열림</li><li>기믹: 🚶 사람 · 🚗 나가는 차 · 🚧 차단기 · ⛔ 일방통행 · 🚚 긴 차 · ❄️🌧 미끄러운 길 · 🔦 밤 — 모두 매번 똑같이 움직여요</li></ul></div>
+    <li>빛나는 칸에 주차 → <b>100%</b>면 <kbd>Enter</kbd>로 확정</li><li>주차하면 시간이 <b>되감기</b>고 다음 차 차례</li><li>과거의 나 · 벽 · 다른 차에 부딪히면 그 차만 다시</li><li>난이도 5단계 · 맵 31개 · 맵마다 ★ 3개 · 깨면 다음 맵 열림</li><li>♾️ 무한 주차: 차가 끝없이 와요 · 목숨은 난이도별(초보 5 → 고수 1) · 20대마다 🛡 방어막 · 오래된 차는 출차</li><li>기믹: 🚶 사람 · 🚗 나가는 차 · 🚧 차단기 · ⛔ 일방통행 · 🚚 긴 차 · ❄️🌧 미끄러운 길 · 🔦 밤 — 모두 매번 똑같이 움직여요</li></ul></div>
   <div class="hsec" data-hsec="keys" hidden><canvas width="960" height="340" data-anim="keys"></canvas><ul>
     <li>⌨️ <kbd>↑</kbd> 전진 · <kbd>↓</kbd> 브레이크/후진 · <kbd>←</kbd><kbd>→</kbd> 조향 · <kbd>Space</kbd> 급정거 · <kbd>Enter</kbd> 주차 · <kbd>Esc</kbd> 메뉴</li>
     <li>🎮 RT 액셀 · LT 브레이크/후진 · 스틱 조향 · B 급정거 · A 주차</li>
@@ -620,8 +623,65 @@ const LEVELS=[
   for(const [x,y] of [[420,400],[700,800],[300,1200],[560,1600],[420,2000]])block(L,x,y,60,24,'cart');
   ped(L,150,300,810,300,8,0);ped(L,810,1200,150,1200,10,.3);ped(L,150,2350,810,2350,9,.6);
   [r1,r2,r3,r4,r5,r6,r7,r8].forEach((r,k)=>car(L,100+k*108,2530,r[0]));
+ }),
+ lot('공영주차장',20,1720,L=>{ // 동네 공영주차장: 좁은 진입로 · 주차권 차단기 · 정산소 · 좁은 통로
+  block(L,480,45,960,90,'bld');L.deco.push(['label',480,45,'🅿 ○○동 공영주차장','#1982c4']);
+  const a=rowH(L,158,152,15,UP,[11]);
+  const b=rowH(L,158,364,15,P/2,[3]);rowH(L,158,426,15,UP,[]);
+  rowH(L,158,638,15,P/2,[]);const d=rowH(L,158,700,15,UP,[7,9]);
+  rowH(L,158,912,15,P/2,[]);const e=rowH(L,158,974,15,UP,[13]);
+  rowH(L,158,1186,15,P/2,[]);
+  pillars(L,158,395,15,5);pillars(L,158,669,15,5);pillars(L,158,943,15,5);
+  // 좁은 진입로 (120px) 양옆은 건물·인도, 주차권 차단기와 정산소
+  block(L,195,1480,390,440,'bld');block(L,765,1480,390,440,'bld');
+  block(L,405,1480,30,440,'walk');block(L,555,1480,30,440,'walk');
+  block(L,600,1300,60,40,'booth');L.deco.push(['label',600,1258,'정산소','#2b2d42'],['zebra',480,1238,120,24]);
+  gate(L,480,1330,120,10,5,3,0); // 주차권 차단기: 3초 열림 · 2초 닫힘
+  leaver(L,158+9*46,700,UP,[[158+9*46,700],[158+9*46,800],[120,820],[60,820],[60,110]],5,120,3); // 통로를 막는 출차 차량
+  ped(L,420,1238,540,1238,6,.2);
+  L.deco.push(['arrow',480,1600,UP],['arrow',480,1420,UP],['arrow',70,1050,UP],['arrow',890,1050,UP],['arrow',70,560,UP],['arrow',890,560,UP]);
+  car(L,480,1440,b[0]);car(L,480,1520,a[0]);car(L,480,1600,d[0]);car(L,480,1680,e[0]);
  })
 ];
+// ---------- ♾️ 무한 주차: one big lot, cars keep coming; the oldest parked car drives off (출차) so stalls never run out ----------
+// Stall size, angle tolerance and time are the same at every difficulty; difficulty only sets the lives. Every 20 cars gives a shield.
+const INF_LIVES={beginner:5,easy:4,normal:3,hard:2,master:1},INF_COIN=3;
+const INF_SLOTS=[130,270,410,550,690,830].flatMap(x=>[[x,1300],[x,1420]]); // 12 start spots in the entry plaza
+const INF=lot('무한 주차장',18,1500,L=>{
+  block(L,480,40,960,80,'bld');
+  const e=[1,4,7,10,13],rows=[rowH(L,158,142,15,UP,e),rowH(L,158,364,15,P/2,[0,3,6,9,12]),rowH(L,158,426,15,UP,e),rowH(L,158,648,15,P/2,[2,5,8,11,14]),
+    rowH(L,158,710,15,UP,[0,3,6,9,12]),rowH(L,158,932,15,P/2,e),rowH(L,158,994,15,UP,[2,5,8,11,14])];
+  L.stalls=rows.flat();
+  L.lines.push([20,1190,940,1190,'#ffd166',4,[26,18]]);
+  L.deco.push(['label',480,40,'♾️ 무한 주차장','#6a4c93'],['arrow',70,1100,UP],['arrow',890,1100,UP],['arrow',70,560,UP],['arrow',890,560,UP]);
+  for(const [x,y] of INF_SLOTS)L.lines.push([x-16,y-26,x+16,y-26,'rgba(255,255,255,.5)',2],[x-16,y+26,x+16,y+26,'rgba(255,255,255,.5)',2]);
+});
+INF.inf=true;INF.cars=[];
+let infN=0,infLives=0,infShield=0,infBestNew=false,infGain=0;
+const infCap=()=>Math.min(11,4+Math.floor(infN/5)); // parked ghosts kept in the timeline: grows from 4 to 11
+// next car: a stall and a start spot that no ghost still in the timeline is using
+function infNext(rng=Math.random){
+  const usedS=new Set(ghosts.map(g=>g.sid)),usedT=new Set(ghosts.map(g=>g.slot));
+  const fs=INF.stalls.map((_,i)=>i).filter(i=>!usedS.has(i)),ft=INF_SLOTS.map((_,i)=>i).filter(i=>!usedT.has(i));
+  const sid=fs[Math.floor(rng()*fs.length)],slot=ft[Math.floor(rng()*ft.length)],[x,y]=INF_SLOTS[slot];
+  INF.cars.push({s:[x,y,UP],p:INF.stalls[sid],sid,slot});
+}
+function startInf(){
+  preloadGif();li=-2;L=INF;INF.cars=[];ci=0;ghosts=[];attempts=0;score=0;leftSum=0;infN=0;infGain=0;infLives=INF_LIVES[diff]||3;infShield=0;
+  coins=genCoins(L);coinGain=0;menu.hidden=true;cv.focus();infNext();startRound();camY=camTarget();
+}
+function infParked(){ // called from finishRound after the ghost was stored
+  const g=ghosts[ghosts.length-1],cd=INF.cars[ci];g.sid=cd.sid;g.slot=cd.slot;infN++;infGain+=INF_COIN;
+  if(infN%20===0){infShield++;pops.push({s:'🛡 방어막 +1',x:players[0].car.x,y:players[0].car.y-70,t,c:'#6a4c93'});Snd.fanfare(2);}
+  while(ghosts.length>infCap()){ghosts.shift();pops.push({s:'🚙 가장 오래된 차 출차',x:VW/2,y:camY+120,t,c:'#457b9d'});}
+  infNext();
+}
+function infFail(){ // returns true when the run is over
+  if(infShield>0){infShield--;msg+=' · 🛡 방어막이 막아 줬어요';return false;}
+  infLives--;if(infLives>0){msg+=` · ❤️ ${infLives}개 남음`;return false;}
+  state='infover';const k='inf-'+diff;PROF.best=PROF.best||{};infBestNew=!(PROF.best[k]>=infN);if(infBestNew)PROF.best[k]=infN;
+  lastGain=infGain+coinGain;coinGain=0;PROF.coins+=lastGain;saveProf();submitInf(diff,PROF.best[k]);setTimeout(()=>Snd.coin(),400);return true;
+}
 // ---------- 오늘의 주차장: the date seeds a lot built from the same pieces as the hand-made maps ----------
 const dayKey=(d=new Date())=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -1174,7 +1234,7 @@ function checkUnlocks(){
   const m=[],st=PROF.stat||{};
   if((st.crash||0)>=100)grantSkin('dent',m,'충돌 100번');
   if((st.perfect||0)>=50)grantDeco('crown',m,'완벽 주차 50번');
-  if(LEVELS.every((_,i)=>Object.keys(PROF.best||{}).some(k=>k.startsWith(i+':'))))grantTitle('전국 주차왕',m,'30맵 모두 클리어');
+  if(LEVELS.every((_,i)=>Object.keys(PROF.best||{}).some(k=>k.startsWith(i+':'))))grantTitle('전국 주차왕',m,'모든 맵 클리어');
   if(['ine','jing','lilpa','jururu','gosegu','viichan','isd'].every(id=>PROF.skins.includes(id)))grantTitle('이파리',m,'이세돌 세트 완성');
   if(['gold','snail'].every(id=>PROF.skins.includes(id))&&PROF.forms.includes('bear'))grantTitle('왁물원',m,'우왁굳 세트 완성');
   const ratio=owned()/ALL_ITEMS();PROF.dex=PROF.dex||0;
@@ -1355,7 +1415,8 @@ function playMap(i){preloadGif();attempts=0;score=0;leftSum=0;loadLevel(i);}
 const unlocked=i=>i===0||Object.keys(PROF.best||{}).some(k=>k.startsWith((i-1)+':'));
 const stars=i=>(PROF.star||{})[i+':'+diff]||0;
 function renderMaps(){
-  $('mapsTitle').textContent=`🗺️ 맵 선택 · ${D.label}`;const g=$('mapgrid');g.textContent='';
+  $('mapsTitle').textContent=`🗺️ 맵 선택 · ${D.label}`;
+  $('goInf').innerHTML=`♾️ 무한 주차 <small>목숨 ${INF_LIVES[diff]}개 · 20대마다 🛡 · 최고 ${(PROF.best||{})['inf-'+diff]||0}대</small>`;const g=$('mapgrid');g.textContent='';
   if(!unlocked(pickMap))pickMap=0;
   LEVELS.forEach((lv,i)=>{const b=document.createElement('button');b.className='mcell'+(i===pickMap?' on':'');const open=unlocked(i);b.disabled=!open;
     const st=stars(i);b.innerHTML=`<b>${i+1}</b>${open?lv.name:'🔒'}<i>${open?'★'.repeat(st)+'☆'.repeat(3-st):''}</i>`;
@@ -1366,8 +1427,8 @@ function renderMaps(){
 function showPick(){const lv=LEVELS[pickMap],k=pickMap+':'+diff;$('mpname').textContent=`${pickMap+1}. ${lv.name}`;
   $('mpmeta').textContent=`차 ${lv.cars.length}대 · 차당 ${(lv.time*D.timeMul).toFixed(0)}초 · 최고 ${(PROF.best||{})[k]||0}점`;pv.lv=lv;pv.t0=performance.now();}
 function loadLevel(i){li=i;L=i<0?DAILY:LEVELS[i];ci=0;ghosts=[];coins=mode==='single'?genCoins(L):null;coinGain=0;menu.hidden=true;cv.focus();startRound();camY=camTarget();}
-function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p;return[x,y,a,w+D.spotAdd,h+D.spotAdd];}
-const timeLimit=()=>L.time*D.timeMul;
+function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p,add=L.inf?0:D.spotAdd;return[x,y,a,w+add,h+add];}
+const timeLimit=()=>L.time*(L.inf?1:D.timeMul); // 무한 주차: same time at every difficulty
 function startRound(){
   rwgif.hidden=true;const [x,y,a]=L.cars[ci].s;
   players=[{car:{x,y,a,v:0},rec:[],parkT:0,pct:0,crooked:false,out:''}];state='drive';lastSec=99;
@@ -1395,13 +1456,14 @@ function openOnline(){
 }
 function closeOnline(){wantOnline=false;watchRooms(false);if(onlineOpen&&net){net.disconnect();onlineOpen=false;}}
 function enterRoom(code,r){curRound=-1;
-  preloadGif();watchRooms(false);mode='online';roomCode=code;room=r;onlineMap=r.map;diff='normal';D=DIFFS.normal;
+  preloadGif();watchRooms(false);mode='online';roomCode=code;room=r;onlineMap=r.map;diff=DIFFS[r.diff]?r.diff:'normal';D=DIFFS[diff];
   L=LEVELS[r.map];li=r.map;ghosts=[];players=[];others=r.players||{};live={};state='lobby';menu.hidden=true;cv.focus();camY=Math.max(0,L.h-VH);
 }
 function onRoomUpdate(r){
   if(mode!=='online')return;
   if(!r){netNotice('방이 닫혔어요. (방장이 나갔어요)');goMenu();return;}
   room=r;others=r.players||{};onlineMap=r.map;
+  if(!/drive|parked|rewind|fail|countdown|spectate|coop/.test(state)){diff=DIFFS[r.diff]?r.diff:'normal';D=DIFFS[diff];} // a race keeps the difficulty it started with
   if(!others[net.uid]){netNotice('방장에게 강퇴당했어요.');goMenu();return;}
   roomHousekeeping(r);relayTick();CO.onRoom();
   if(r.mode==='first'&&/drive|parked|rewind|fail/.test(state)&&curRound===r.round&&Object.values(others).filter(o=>o.round===r.round&&o.st==='done').length>=(r.quota||1)){
@@ -1506,6 +1568,7 @@ function action(){
     else if(teamProblem()){Snd.nope();say(teamProblem());}
     else net.setStart(now()+3000,false,nextExtra());}
   else if(state==='fail')startRound();
+  else if(state==='infover')startInf();
   else if(state==='replay')doClear();
   else if(state==='clear'){if(li<0)showMenu('home');else if(li+1<LEVELS.length){pickMap=li+1;playMap(li+1);}else showMenu('maps');}
 }
@@ -1548,7 +1611,7 @@ function parkPct(c){
     const px=c.x+u*HW*ca-v*HH*sn,py=c.y+u*HW*sn+v*HH*ca,lx=(px-sx)*co-(py-sy)*si,ly=(px-sx)*si+(py-sy)*co;
     if(Math.abs(lx)<=sw/2&&Math.abs(ly)<=sh/2)n++;}
   let da=((c.a-sa)%P+P)%P;da=Math.min(da,P-da);
-  const crooked=da>D.angTol;let pct=Math.round(n/15*100);if(pct===100&&crooked)pct=96;
+  const crooked=da>(L.inf?DIFFS.normal.angTol:D.angTol);let pct=Math.round(n/15*100);if(pct===100&&crooked)pct=96;
   return {pct,crooked};
 }
 function confirmPark(){
@@ -1563,6 +1626,7 @@ function finishRound(p){
    const gr=off<4&&da<.05?['완벽 주차!',150,'#ff7a45']:off<9&&da<.12?['좋아요!',50,'#2a9d8f']:['간신히…',0,'#9aa0aa'];
    if(gr[1]===150){PROF.stat=PROF.stat||{};PROF.stat.perfect=(PROF.stat.perfect||0)+1;}score+=gr[1];pops.push({s:gr[0]+(gr[1]?` +${gr[1]}`:''),x:p.car.x,y:p.car.y-40,t,c:gr[2]});if(gr[1]===150)Snd.fanfare(1);}
   parkFx(p.car.x,p.car.y);Snd.park();
+  if(L.inf)infParked();
   if(ci+1<L.cars.length){state='parked';parkedT=t;} // hold a beat so the parking grade and effect can be seen, then rewind
   else if(mode==='online'){myTime=(now()-roomStart)/1000;state='result';Snd.win();
     const rivals=Object.entries(others).filter(([id,o])=>id!==net.uid&&o.round===curRound&&(o.st==='race'||o.st==='done'));
@@ -1629,7 +1693,7 @@ function step(){
   const left=timeLimit()-i*DT,sec=Math.ceil(left);
   if(left<3.5&&sec!==lastSec&&sec>0){lastSec=sec;Snd.tick();}
   if(p.out||left<=0){
-    msg=p.out||'시간 초과! 지각이에요';attempts++;score-=50;state='fail';
+    msg=p.out||'시간 초과! 지각이에요';attempts++;score-=50;state='fail';if(L.inf)infFail();
     if(p.out){Snd.crash();PROF.stat=PROF.stat||{};PROF.stat.crash=(PROF.stat.crash||0)+1;if(PROF.stat.crash===100)noteUnlocks();burst(c.x,c.y,22,['#adb5bd','#dee2e6','#868e96'],90,.9,-30,9);}else Snd.buzz();
   }
 }
@@ -1668,6 +1732,7 @@ function drawBlock(g,o){
     else for(let sy=y;sy<y+h;sy+=28){g.beginPath();g.moveTo(x,sy);g.lineTo(x+w,sy);g.stroke();}}
   else if(k==='wall'){g.fillStyle='#cfd4da';g.fillRect(x,y,w,h);g.strokeStyle='#a7afb9';g.lineWidth=3;g.strokeRect(x+1.5,y+1.5,w-3,h-3);
     g.fillStyle='rgba(255,202,58,.8)';if(w>h&&h>=20)for(let sx=x+8;sx<x+w-14;sx+=36)g.fillRect(sx,cy-2,18,4);}
+  else if(k==='booth'){g.fillStyle='rgba(20,30,50,.25)';g.fillRect(x+3,y+5,w,h);g.fillStyle='#f1faee';g.fillRect(x,y,w,h);g.fillStyle='#1982c4';g.fillRect(x,y,w,8);g.fillStyle='#a8dadc';g.fillRect(x+6,y+14,w-12,h-20);g.strokeStyle='#457b9d';g.lineWidth=2;g.strokeRect(x+1,y+1,w-2,h-2);}
   else if(k==='pillar'){g.fillStyle='rgba(20,30,50,.25)';g.fillRect(x+3,y+4,w,h);g.fillStyle='#e9ecef';g.fillRect(x,y,w,h);g.fillStyle='#ffca3a';g.fillRect(x,y+h-5,w,5);g.strokeStyle='#adb5bd';g.lineWidth=2;g.strokeRect(x+1,y+1,w-2,h-2);}
   else if(k==='cone'){g.fillStyle='rgba(20,30,50,.25)';g.beginPath();g.arc(cx+2,cy+3,7,0,P*2);g.fill();g.fillStyle='#ff8c42';g.beginPath();g.arc(cx,cy,7,0,P*2);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(cx,cy,3.5,0,P*2);g.fill();}
   else if(k==='pile'){g.fillStyle='rgba(20,30,50,.15)';rr(g,x+3,y+4,w,h,h/2);g.fill();g.fillStyle='#fbfdff';rr(g,x,y,w,h,h/2);g.fill();g.fillStyle='#e3ecf5';rr(g,x+4,y+h*.5,w-8,h*.4,h/4);g.fill();}
@@ -1698,6 +1763,7 @@ function buildBg(lv,kb){
     if(d[0]==='zebra'){const [,x,y,w,h]=d;g.fillStyle='rgba(255,255,255,.75)';for(let sx=x-w/2;sx<x+w/2;sx+=28)g.fillRect(sx,y-h/2,14,h);}
   }
   for(const o of lv.obs)drawBlock(g,o);
+  for(const d of lv.deco)if(d[0]==='label'){const [,x,y,str,bg]=d;g.font='20px '+FONT;const w=g.measureText(str).width+24;g.fillStyle=bg;g.beginPath();g.roundRect(x-w/2,y-16,w,32,16);g.fill();g.fillStyle='#fff';g.textAlign='center';g.fillText(str,x,y+7);} // signs sit on top of roofs
   for(const [x,y,r] of lv.trees)drawTree(g,x,y,r);
   if(lv.theme==='snow'){g.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<lv.h*1.2;i++){g.beginPath();g.arc(Math.random()*VW,Math.random()*lv.h,1+Math.random()*2.5,0,P*2);g.fill();}}
   if(lv.theme==='night'){g.fillStyle='rgba(10,15,40,.35)';g.fillRect(0,0,VW,lv.h);
@@ -1813,12 +1879,13 @@ function draw(){
   drawDark();
   hud();
   const left=Math.max(0,timeLimit()-p.rec.length*DT);
-  pill(12,10,mode==='online'?`🌐 ${room?room.name:''} · ${L.name}`:(li<0?`📅 ${L.name}`:`${D.label} · ${li+1}/${LEVELS.length} ${L.name}`));
+  pill(12,10,mode==='online'?`🌐 ${room?room.name:''} · ${L.name}`:L.inf?`♾️ 무한 주차 · ${D.label}`:(li<0?`📅 ${L.name}`:`${D.label} · ${li+1}/${LEVELS.length} ${L.name}`));
   const ROW=(18+14)*UIS+8;
-  pill(VW/2,UIS>1?10+ROW:10,mode==='online'?`🚗 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   재시도 ${attempts}`:`🚗 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   ⭐ ${finalScore()}   재시도 ${attempts}`,'center');
+  pill(VW/2,UIS>1?10+ROW:10,L.inf?`🚗 ${infN}대   ${'❤️'.repeat(Math.max(0,infLives))}${infShield?'   🛡'+infShield:''}   다음 방어막 ${20-infN%20}대`:mode==='online'?`🚗 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   재시도 ${attempts}`:`🚗 ${Math.min(ci+1,L.cars.length)}/${L.cars.length}   ⭐ ${finalScore()}   재시도 ${attempts}`,'center');
   {const tags=[L.slip&&(L.rain?'🌧 빗길':'❄️ 빙판'),L.dark&&'🔦 전조등만',L.ow&&'⛔ 일방통행',dimOf(ci)[0]>HW&&'🚚 긴 차 (크게 돌아요)'].filter(Boolean);if(tags.length)pill(12,UIS>1?10+2*ROW:52,tags.join(' · '),'left','rgba(43,45,66,.85)','#fff',15);}
   pill(VW-12,10,`⏱ ${left.toFixed(1)}`,'right',left<3?'#ff595e':'rgba(255,255,255,.94)',left<3?'#fff':'#2b2d42',20);
   ctx.fillStyle='rgba(255,255,255,.6)';ctx.fillRect(0,VH-7,VW,7);ctx.fillStyle=COLORS[ci%COLORS.length];ctx.fillRect(0,VH-7,VW*(left/timeLimit()),7);
+  if(state==='drive'){const sy=spot(ci)[1]-camY;if(sy<30)pill(VW/2,UIS>1?10+3*ROW:94,'⬆ 목표 칸은 위쪽','center','#ff7a45','#fff',16);else if(sy>VH-20)pill(VW/2,VH-16-34*UIS,'⬇ 목표 칸은 아래쪽','center','#ff7a45','#fff',16);} // target off-screen hint
   if(state==='drive'&&p.pct===100)pill(VW/2,VH-16-34*UIS,'Enter / 패드 A / P 로 주차 확정!','center','#2a9d8f','#fff',20);
   if(state==='replay'){pill(VW/2,VH-16-34*UIS,'▶ 전체 다시보기 · Space 건너뛰기','center','#2b2d42','#fff',20);}
   if(slowT>0){ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(0,0,VW,VH);}
@@ -1826,6 +1893,7 @@ function draw(){
     ctx.fillStyle='rgba(255,255,255,.08)';for(let y=(t*120)%8;y<VH;y+=8)ctx.fillRect(0,y,VW,2);
     pill(VW/2,VH*.62,'◀◀  되감기','center','#1982c4','#fff',34);}
   if(state==='fail')card('음...수듄 ㅋ',`${msg} · Space / 탭으로 다시`,'#ff595e',170,'galtong');
+  if(state==='infover')card(`♾️ ${infN}대 주차${infBestNew&&infN?' NEW!':''}`,`🪙 +${lastGain} · ${D.label} 최고 ${(PROF.best||{})['inf-'+diff]||0}대 · Space 다시 · Esc 메뉴`,'#6a4c93',170,infN>=20?'ddabong':'galtong');
   if(state==='clear'&&lastReward.length)pill(VW/2,VH/2+95*Math.min(UIS,1.4)+15,'🏅 '+lastReward.join(' · '),'center','#e0a800','#fff',18);
   if(state==='clear'&&li<0)card(`📅 오늘의 주차장 · ${finalScore()}점${lastBest?' NEW!':''}`,`🪙 +${lastGain} · 오늘 ${dailyRank()} · Space 메뉴`,'#2a9d8f',170,'grin');
   else if(state==='clear')card(`🎉 ${'★'.repeat(lastStars)}${'☆'.repeat(3-lastStars)} · ${finalScore()}점${lastBest?' NEW!':''}`,`🪙 +${lastGain} · `+(li+1<LEVELS.length?'Space 다음 맵 · Esc 맵 선택':'Esc 맵 선택'),'#2a9d8f',170,'grin');
@@ -1841,7 +1909,7 @@ function drawRoom(){kickBoxes=[];
   const rows=Math.min(list.length,12),RH=list.length>8?24:30,won=state==='result'&&(m==='coop'?!!CO.winner()&&CO.winner().t===teamOf(others[net.uid]||{}):list[0]&&list[0].id===net.uid&&list[0].st==='done');
   const LN=m==='coop'?'🏰 탑 코스':L.name,title=state==='result'?`🏁 결과 · ${LN}`:`${room&&room.priv?'🔒 ':''}${room?room.name:''}`;
   let [y,cx]=card(title,'',state==='result'?'#ff7a45':'#1982c4',Math.max(250,206+rows*RH),state==='result'?(won?'ddabong':'grin'):'wak',false);
-  const mh=MODE_HELP[m];text(`${MODES[m]}${m==='sum3'?` ${Math.max(1,room.stage||1)}/3판`:''} · ${LN} · ${list.length}/${room?room.max:'?'}명 · 코드 ${roomCode}`,cx,y+104,16,'#6c6f80');
+  const mh=MODE_HELP[m];text(`${MODES[m]}${m==='sum3'?` ${Math.max(1,room.stage||1)}/3판`:''} · ${LN}${m==='coop'?'':' · '+D.label} · ${list.length}/${room?room.max:'?'}명 · 코드 ${roomCode}`,cx,y+104,16,'#6c6f80');
   if(m==='coop'&&state==='result'&&CO.winner()){const w=CO.winner();text(`🏆 ${TEAMS[w.t][0]}팀 승리 · ${w.name} 왕관 ${w.time.toFixed(2)}초`,cx,y+126,15,'#ff7a45');}
   else if(m==='relay'&&state==='result'&&room.seq){text(relayStandings().map((s,i)=>`${i+1}. ${TEAMS[s.t][0]} ${s.done?s.time.toFixed(2)+'초':'완주 못함'}`).join('   '),cx,y+126,15,'#ff7a45');}
   else text(typeof mh==='function'?mh(room.quota||1):mh,cx,y+126,14,'#9aa0aa');y+=156;
@@ -1864,12 +1932,13 @@ const roomctl=document.getElementById('roomctl');let ctlKey='';
 function syncRoomCtl(){
   const show=mode==='online'&&net&&room&&(state==='lobby'||state==='result');if(roomctl.hidden===show)roomctl.hidden=!show;if(!show){ctlKey='';return;}
   const me=others[net.uid]||{},host=net.isHost,n=Object.keys(others).length,m=rmode();
-  const key=JSON.stringify([host,room.map,room.max,m,room.quota,room.priv,room.teams,n,me.rd===cfgv(),teamOf(me),autoRd,state]);
+  const key=JSON.stringify([host,room.map,room.diff,room.max,m,room.quota,room.priv,room.teams,n,me.rd===cfgv(),teamOf(me),autoRd,state]);
   if(key===ctlKey||roomctl.contains(document.activeElement)&&document.activeElement.tagName!=='BUTTON')return;ctlKey=key;
   const opt=(arr,cur)=>arr.map(([v,l])=>`<option value="${v}"${String(v)===String(cur)?' selected':''}>${l}</option>`).join('');
   let h='';
   if(host)h+=`<div class="rrow">${m==='coop'?'':`<label>맵 <select id="cMap">${opt(LEVELS.map((l,i)=>[i,`${i+1}. ${l.name}`]),room.map)}</select></label>`}
     <label>모드 <select id="cMode">${opt(Object.entries(MODES),m)}</select></label>
+    ${m==='coop'?'':`<label>난이도 <select id="cDiff">${opt(Object.entries(DIFFS).map(([k,v])=>[k,v.label]),room.diff||'normal')}</select></label>`}
     ${m==='first'?`<label>통과 <select id="cQuota">${opt([1,2,3,4,5,6,7,8,9,10,11].filter(v=>v<room.max).map(v=>[v,v+'명']),room.quota||1)}</select></label>`:''}
     ${m==='relay'?`<label>팀 <select id="cTeams">${opt([2,3,4,5,6].map(v=>[v,v+'팀']),nTeams())}</select></label>`:''}${teamy(m)?'<button class="rbtn" id="cMix">🔀 팀 섞기</button>':''}
     <label>인원 <select id="cMax">${opt([2,3,4,5,6,7,8,9,10,11,12].filter(v=>v>=n).map(v=>[v,v+'명']),room.max)}</select></label></div>
@@ -1880,6 +1949,7 @@ function syncRoomCtl(){
   const on=(id,ev,f)=>{const e=document.getElementById(id);if(e)e.addEventListener(ev,f);};
   on('cMap','change',e=>net.updateRoom({map:+e.target.value}));
   on('cMode','change',e=>net.updateRoom({mode:e.target.value,...(e.target.value==='relay'&&!room.teams?{teams:2}:{})}));
+  on('cDiff','change',e=>net.updateRoom({diff:e.target.value}));
   on('cQuota','change',e=>net.updateRoom({quota:+e.target.value}));
   on('cTeams','change',e=>net.updateRoom({teams:+e.target.value}));
   on('cMax','change',e=>net.updateRoom({max:+e.target.value}));
@@ -2099,6 +2169,7 @@ requestAnimationFrame(loop);
 // ---------- menu, online lobby UI & help ----------
 const $=id=>document.getElementById(id),netmsgEl=$('netmsg');
 const netNotice=s=>{netmsgEl.textContent=s;};
+$('goInf').addEventListener('click',()=>{Snd.init();Snd.click();mode='single';startInf();});
 $('goSingle').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('single');});
 $('goCoop').addEventListener('click',()=>{Snd.init();Snd.click();mode='single';CO.start(true);});
 $('goOnline').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('online');});
@@ -2127,7 +2198,7 @@ $('mkroom').addEventListener('click',async()=>{
   const priv=$('rpriv').checked,pw=$('rpw').value;
   if(priv&&!pw)return netNotice('비밀방은 비밀번호를 입력해 주세요.');
   netNotice('방 만드는 중…');
-  try{const {code,room:r}=await net.createRoom({name:$('rname').value.trim()||nick()+'의 방',map:+$('rmap').value,max:+$('rmax').value,pw:priv?pw:'',mode:$('rmode').value,quota:+$('rquota').value});netNotice('');enterRoom(code,r);}
+  try{const {code,room:r}=await net.createRoom({name:$('rname').value.trim()||nick()+'의 방',map:+$('rmap').value,max:+$('rmax').value,pw:priv?pw:'',mode:$('rmode').value,quota:+$('rquota').value,diff:$('rdiff').value});netNotice('');enterRoom(code,r);}
   catch(e){console.error(e);netNotice('방을 만들지 못했어요. 잠시 뒤 다시 해 주세요.');}
 });
 $('jroom').addEventListener('click',()=>{Snd.init();Snd.click();joinRoom($('jcode').value.trim().toUpperCase(),$('jpw').value);});
@@ -2144,7 +2215,7 @@ function renderRooms(all){
     const n=Object.keys(r.players).length,racing=Object.values(r.players).some(p=>p.st==='race'),full=n>=r.max;
     const li=document.createElement('li'),info=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span'),btn=document.createElement('button');
     info.className='rn';b.textContent=(r.priv?'🔒 ':'')+String(r.name||'방');
-    s.textContent=`${MODES[r.mode||'time']} · ${(LEVELS[r.map]||{}).name||'?'} · ${n}/${r.max}명 · ${racing?'게임 중':'대기 중'}`;
+    s.textContent=`${MODES[r.mode||'time']} · ${r.mode==='coop'?'탑 코스':`${(LEVELS[r.map]||{}).name||'?'} · ${(DIFFS[r.diff]||DIFFS.normal).label}`} · ${n}/${r.max}명 · ${racing?'게임 중':'대기 중'}`;
     btn.className='rjoin';btn.textContent=full?'꽉 참':'입장';btn.disabled=full;
     btn.addEventListener('click',()=>{Snd.init();Snd.click();if(r.priv){openTab('code');$('jcode').value=code;$('jpw').value='';$('jpw').focus();netNotice('비밀번호를 입력하고 입장하세요.');}else joinRoom(code,'');});
     info.append(b,s);li.append(info,btn);ul.append(li);
@@ -2192,18 +2263,22 @@ renderCoins();
 // ---------- leaderboard (Firebase via module below; local best as fallback) ----------
 const rowsEl=$('rows'),bmsg=$('bmsg');
 let tab='normal';
-const local=()=>{try{return JSON.parse(localStorage.getItem('pp-best3')||'{}')}catch{return{}}};
-document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;
-  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));net?net.watchBoard(tab):renderBoard(null);}));
+const local=(k='pp-best3')=>{try{return JSON.parse(localStorage.getItem(k)||'{}')}catch{return{}}};
+let bmode='maps';const bcol=()=>bmode==='inf'?'endless':'scores3';
+document.querySelectorAll('#dtabs button').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;
+  document.querySelectorAll('#dtabs button').forEach(x=>x.setAttribute('aria-selected',x===b));net?net.watchBoard(tab,bcol()):renderBoard(null);}));
+document.querySelectorAll('#bmode button').forEach(b=>b.addEventListener('click',()=>{bmode=b.dataset.bm;
+  document.querySelectorAll('#bmode button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  $('bsub').textContent=bmode==='inf'?'무한 주차 최고 대수 · 난이도별':`${LEVELS.length}개 맵 최고점 합산 · 싱글 전용`;net?net.watchBoard(tab,bcol()):renderBoard(null);}));
 function renderBoard(list){ // list: [{id,name,s}] from Firebase, or null for local only
   rowsEl.textContent='';
   const online=!!list;
-  if(!online){const s=local()[tab];list=typeof s==='number'?[{id:'me',name:'나',s}]:[];}
+  if(!online){const s=local(bmode==='inf'?'pp-inf':'pp-best3')[tab];list=typeof s==='number'?[{id:'me',name:'나',s}]:[];}
   list.forEach((r,i)=>{
     const li=document.createElement('li');if(r.id==='me'||(net&&r.id===net.uid))li.className='me';
     const a=document.createElement('span');a.className='rk';a.textContent=i+1;
     const n=document.createElement('span');n.className='nm';n.textContent=String(r.name||'플레이어');
-    const s=document.createElement('span');s.textContent=r.s+'점';
+    const s=document.createElement('span');s.textContent=r.s+(bmode==='inf'?'대':'점');
     li.append(a,n,s);rowsEl.append(li);
   });
   bmsg.textContent=!list.length?'아직 기록이 없어요. 첫 기록을 남겨 보세요!':online?'':'서버에 연결되지 않아 이 기기의 최고 기록만 보여요.';
@@ -2212,6 +2287,10 @@ function submitScore(d,s){
   try{const b=local();if(!(b[d]>=s)){b[d]=s;localStorage.setItem('pp-best3',JSON.stringify(b));}}catch{}
   if(net)net.submitScore(d,s,nick()).catch(e=>{console.error(e);bmsg.textContent='랭킹 저장에 실패했어요. 이 기기에만 저장했어요.';});
   else renderBoard(null);
+}
+function submitInf(d,n){
+  try{const b=local('pp-inf');if(!(b[d]>=n)){b[d]=n;localStorage.setItem('pp-inf',JSON.stringify(b));}}catch{}
+  if(net&&net.submitInf)net.submitInf(d,n,nick()).catch(e=>console.error(e));else if(bmode==='inf')renderBoard(null);
 }
 renderBoard(null);
 </script>
@@ -2245,11 +2324,15 @@ const mergeProf=(a,b)=>({coins:Math.max(a.coins||0,b.coins||0),forms:[...new Set
 onAuthStateChanged(auth,u=>{
   if(!u||net)return;
   const api={uid:u.uid,offset:0,room:null,isHost:false,
-    watchBoard(t){
+    watchBoard(t,col='scores3'){
       if(boardUnsub)boardUnsub();
-      boardUnsub=onSnapshot(query(collection(fs,'scores3'),orderBy(t,'desc'),limit(20)),
+      boardUnsub=onSnapshot(query(collection(fs,col),orderBy(t,'desc'),limit(20)),
         snap=>renderBoard(snap.docs.map(d=>({id:d.id,name:d.data().name,s:d.data()[t]}))),
         e=>{console.error(e);renderBoard(null);});
+    },
+    async submitInf(d,n,name){
+      const r=doc(fs,'endless',u.uid),cur=(await getDoc(r)).data()||{};
+      await setDoc(r,{name,...(cur[d]>=n?{}:{[d]:n})},{merge:true});
     },
     async submitScore(d,s,name){
       const r=doc(fs,'scores3',u.uid),cur=(await getDoc(r)).data()||{};
@@ -2259,7 +2342,7 @@ onAuthStateChanged(auth,u=>{
     async createRoom(o){
       api.leave();let code='';
       for(let i=0;i<6;i++){code=Array.from({length:5},()=>CH[Math.floor(Math.random()*CH.length)]).join('');if(!(await get(ref(rt,'rooms/'+code))).exists())break;}
-      const rr=ref(rt,'rooms/'+code),sr=ref(rt,'roomSecrets/'+code),room={name:o.name.slice(0,20),host:u.uid,map:o.map,max:o.max,priv:!!o.pw,created:Date.now(),mode:o.mode||'time',quota:Math.min(o.quota||1,o.max-1),cfg:0,...(o.mode==='relay'?{teams:2}:{})};
+      const rr=ref(rt,'rooms/'+code),sr=ref(rt,'roomSecrets/'+code),room={name:o.name.slice(0,20),host:u.uid,map:o.map,max:o.max,priv:!!o.pw,created:Date.now(),mode:o.mode||'time',quota:Math.min(o.quota||1,o.max-1),diff:DIFFS[o.diff]?o.diff:'normal',cfg:0,...(o.mode==='relay'?{teams:2}:{})};
       await set(rr,room);onDisconnect(rr).remove();
       if(o.pw)await set(sr,await hash(code,o.pw));else await remove(sr); // clear any stale secret for this code
       onDisconnect(sr).remove();
