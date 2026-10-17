@@ -220,7 +220,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
             <div data-opane="make" hidden>
               <label>방 이름 <input type="text" id="rname" maxlength="20" autocomplete="off"></label>
               <label>맵 <select id="rmap"></select></label>
-              <label>모드 <select id="rmode"><option value="time">⏱ 타임어택 · 가장 빨리 다 주차하면 1등</option><option value="first">🏁 선착순 · N명 통과하면 판 끝</option><option value="surv">💀 서바이벌 · 판마다 꼴찌 탈락</option><option value="sum3">🏆 3판 합산 · 맵 3개 순위 점수 합계</option><option value="relay">🤝 팀 릴레이 · 팀원이 맵을 이어 달리기</option><option value="coop">🏰 협동 파크 · 4v4 팀이 문 열어 주며 왕관 먼저</option></select></label>
+              <label>모드 <select id="rmode"><option value="time">⏱ 타임어택 · 가장 빨리 다 주차하면 1등</option><option value="first">🏁 선착순 · N명 통과하면 판 끝</option><option value="firstk">🔫 선착순 강퇴 · 못 들면 방에서 강퇴</option><option value="surv">💀 서바이벌 · 판마다 꼴찌 탈락</option><option value="sum3">🏆 3판 합산 · 맵 3개 순위 점수 합계</option><option value="relay">🤝 팀 릴레이 · 팀원이 맵을 이어 달리기</option><option value="coop">🏰 협동 파크 · 4v4 팀이 문 열어 주며 왕관 먼저</option></select></label>
               <label>난이도 <select id="rdiff"><option value="beginner">초보</option><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option><option value="master">고수</option></select></label>
               <label id="rquotal" hidden>통과 인원 <select id="rquota"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></label>
               <label>최대 인원 <select id="rmax"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></label>
@@ -312,7 +312,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
     <li>🎮 RT 액셀 · LT 브레이크/후진 · 스틱 조향 · B 급정거 · A 주차</li>
     <li>패드로 마우스가 움직이면 <kbd>Win</kbd>+<kbd>G</kbd> → 설정 → '게임패드 커서' 켰다 끄기</li></ul></div>
   <div class="hsec" data-hsec="online" hidden><canvas width="960" height="340" data-anim="online"></canvas><ul>
-    <li>방 만들기(맵 · 인원 · 🔒비밀방) 또는 목록에서 입장</li><li>모드: ⏱ 타임어택 · 🏁 선착순 N명 · 💀 서바이벌(꼴찌 탈락) · 🏆 3판 합산 · 🤝 팀 릴레이 · 🏰 협동 파크</li><li>방장은 대기실에서 맵 · 모드 · 인원 · 비밀방을 언제든 바꿔요 · 닉네임 옆 🚫 강퇴</li><li>모두 ✅ 레디해야 출발 · 조건이 바뀌면 레디가 풀려요 · 자동 레디 켜면 알아서 다시 레디</li><li>🤝 팀 릴레이: 팀 색을 고르고, 랜덤 맵을 팀원이 차례로 이어 달려요 (최대 12명)</li><li>🏰 협동 파크: 레드 vs 블루 (팀당 최대 4명 · 차는 항상 4대). 버튼을 밟아 서로 문을 열어 주고, 4대가 광장에 모이면 탑이 열려요. 드리프트로 링을 돌아 왕관을 먼저 먹는 팀 승리 · 내 차가 여러 대면 Tab / ⇄ 로 바꿔요 · 화면 반쪽은 상대 팀</li><li>다른 사람 차는 반투명 · 부딪히지 않아요</li></ul></div>
+    <li>방 만들기(맵 · 인원 · 🔒비밀방) 또는 목록에서 입장</li><li>모드: ⏱ 타임어택 · 🏁 선착순 N명 · 🔫 선착순 강퇴(못 들면 방에서 쫓겨나요) · 💀 서바이벌(꼴찌 탈락) · 🏆 3판 합산 · 🤝 팀 릴레이 · 🏰 협동 파크</li><li>방장은 대기실에서 맵 · 모드 · 인원 · 비밀방을 언제든 바꿔요 · 닉네임 옆 🚫 강퇴</li><li>모두 ✅ 레디해야 출발 · 조건이 바뀌면 레디가 풀려요 · 자동 레디 켜면 알아서 다시 레디</li><li>🤝 팀 릴레이: 팀 색을 고르고, 랜덤 맵을 팀원이 차례로 이어 달려요 (최대 12명)</li><li>🏰 협동 파크: 레드 vs 블루 (팀당 최대 4명 · 차는 항상 4대). 버튼을 밟아 서로 문을 열어 주고, 4대가 광장에 모이면 탑이 열려요. 드리프트로 링을 돌아 왕관을 먼저 먹는 팀 승리 · 내 차가 여러 대면 Tab / ⇄ 로 바꿔요 · 화면 반쪽은 상대 팀</li><li>다른 사람 차는 반투명 · 부딪히지 않아요</li></ul></div>
   <div class="hsec" data-hsec="gacha" hidden><canvas width="960" height="340" data-anim="gacha"></canvas><ul>
     <li>🪙 왁코인 얻기: 맵 코인 +5 · 클리어 +10~50(난이도별) · 온라인 1등(2명 이상) +80</li>
     <li>뽑기 1회 30 · 10+1회 300 (영웅 이상 1개 보장) · 처음엔 300개 지급</li>
@@ -1464,8 +1464,8 @@ function onRoomUpdate(r){
   if(!r){netNotice('방이 닫혔어요. (방장이 나갔어요)');goMenu();return;}
   room=r;others=r.players||{};onlineMap=r.map;
   if(!/drive|parked|rewind|fail|countdown|spectate|coop/.test(state)){diff=DIFFS[r.diff]?r.diff:'normal';D=DIFFS[diff];} // a race keeps the difficulty it started with
-  if(!others[net.uid]){netNotice('방장에게 강퇴당했어요.');goMenu();return;}
-  roomHousekeeping(r);relayTick();CO.onRoom();
+  if(!others[net.uid]){netNotice(state==='execute'&&EX.lose?'🔫 탈락! 이 방에는 다시 들어올 수 없어요.':'방장에게 강퇴당했어요.');goMenu();return;}
+  roomHousekeeping(r);relayTick();CO.onRoom();firstkCheck();
   if(r.mode==='first'&&/drive|parked|rewind|fail/.test(state)&&curRound===r.round&&Object.values(others).filter(o=>o.round===r.round&&o.st==='done').length>=(r.quota||1)){
     state='result';Snd.engine(-1);Snd.buzz();say(`선착순 ${r.quota}명 마감! 탈락이에요`);net.status({st:'out',round:curRound});}
   if(r.out&&r.out[net.uid]&&r.start&&r.start>now()&&r.round!==curRound){curRound=r.round;say('💀 탈락했어요 · 관전 중');return;}
@@ -1473,8 +1473,8 @@ function onRoomUpdate(r){
   if(r.start&&r.start>now()&&r.round!==curRound&&(r.force||state==='lobby'||state==='result')){
     curRound=r.round;roomStart=r.start;forced=!!r.force;rwgif.hidden=true;state='countdown';lastCd=0;}
 }
-const MODES={time:'⏱ 타임어택',first:'🏁 선착순',surv:'💀 서바이벌',sum3:'🏆 3판 합산',relay:'🤝 팀 릴레이',coop:'🏰 협동 파크'};
-const MODE_HELP={time:'모든 차를 가장 빨리 주차하면 1등',first:n=>`먼저 ${n}명이 다 주차하면 판 끝 · 나머지 탈락`,surv:'판마다 꼴찌(또는 못 끝낸 사람) 탈락 · 최후의 1인 우승',sum3:'맵 3개 연속 · 순위 점수(1등 = 참가자 수) 합계로 우승',relay:'팀원이 랜덤 맵을 차례로 이어 달려요 · 마지막 주자가 먼저 끝난 팀 승리',coop:'2팀 · 팀원끼리 버튼을 밟아 문을 열어 주고 탑 가운데 왕관을 먼저 먹는 팀 승리'};
+const MODES={time:'⏱ 타임어택',first:'🏁 선착순',surv:'💀 서바이벌',sum3:'🏆 3판 합산',relay:'🤝 팀 릴레이',coop:'🏰 협동 파크',firstk:'🔫 선착순 강퇴'};
+const MODE_HELP={time:'모든 차를 가장 빨리 주차하면 1등',first:n=>`먼저 ${n}명이 다 주차하면 판 끝 · 나머지 탈락`,surv:'판마다 꼴찌(또는 못 끝낸 사람) 탈락 · 최후의 1인 우승',sum3:'맵 3개 연속 · 순위 점수(1등 = 참가자 수) 합계로 우승',firstk:n=>`먼저 ${n}명 통과 · 못 든 사람은 방에서 강퇴 (방장 제외 · 다시 못 들어와요)`,relay:'팀원이 랜덤 맵을 차례로 이어 달려요 · 마지막 주자가 먼저 끝난 팀 승리',coop:'2팀 · 팀원끼리 버튼을 밟아 문을 열어 주고 탑 가운데 왕관을 먼저 먹는 팀 승리'};
 const rmode=()=>room&&room.mode||'time';
 // players who took part in the current round, and their placement points (1st = number of entrants, unfinished = 0)
 function roundEntrants(){return room?Object.entries(others).filter(([,o])=>o.round===room.round&&/race|done|out/.test(o.st)):[];}
@@ -1659,7 +1659,7 @@ function step(){
   t+=DT;pollPad();
   for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.x+=q.vx*DT;q.y+=q.vy*DT;q.vy+=q.g*DT;q.vx*=.98;if((q.life-=DT)<=0)parts.splice(i,1);}
   Snd.engine(state==='drive'?Math.abs(players[0].car.v)/230:-1);
-  Snd.setTrack(/drive|parked|rewind|fail|countdown|clear|coop/.test(state)?'drive':mode==='online'&&state!=='menu'?'lobby':'menu');
+  Snd.setTrack(/drive|parked|rewind|fail|countdown|clear|coop|execute/.test(state)?'drive':mode==='online'&&state!=='menu'?'lobby':'menu');
   if(state==='drive'){const c=players[0].car,k=ctl();
     if(c.v<-5&&t-revT>.5){revT=t;Snd.reverse();}
     if(Math.abs(k.steer)>.7&&Math.abs(c.v)>170&&t-sqT>.45){sqT=t;Snd.squeal();}}
@@ -1672,6 +1672,8 @@ function step(){
   }
   if(state==='spectate'){relayTick();return;}
   if(state==='coop'){CO.step();return;}
+  if(state==='execute'){exTick();return;}
+  if(mode==='online'&&/drive|parked|rewind|fail|result/.test(state))firstkCheck(); // the round's time cap
   if(state==='parked'){if(t-parkedT>1.1&&ci+1>=L.cars.length){state='replay';replayF=0;camRep=null;}else if(t-parkedT>1.1){state='rewind';rewindF=Math.max(...ghosts.map(g=>g.r.length));setTimeout(()=>Snd.rewind(),250);Snd.duck(true);rwgif.src='';rwgif.src=REWIND_GIF;rwgif.hidden=false;}return;}
   if(state==='rewind'){rewindF-=4;if(rewindF<=0){ci++;startRound();Snd.duck(false);}return;}
   if(state==='replay'){replayF+=2;if(replayF>Math.max(...ghosts.map(g=>g.r.length))+40)doClear();return;}
@@ -1849,6 +1851,7 @@ const hud=()=>ctx.setTransform(K,0,0,K,0,0);
 const demo=LEVELS[7];
 function draw(){
   if(state==='coop')return CO.draw();
+  if(state==='execute')return drawExec();
   if(state==='menu'||!L){ // the mall lot slowly scrolling behind the menu, a few cars cruising
     camY=(demo.h-VH)/2*(1+Math.sin(t*.12));world(demo);
     for(let k=0;k<3;k++){const a=t*.35+k*2.1;drawCar(ctx,480+330*Math.cos(a),camY+VH/2+VH*.3*Math.sin(a),a+P/2,COLORS[k],1,null,k?{f:FORMS[k*3].id}:myLook());}
@@ -1939,7 +1942,7 @@ function syncRoomCtl(){
   if(host)h+=`<div class="rrow">${m==='coop'?'':`<label>맵 <select id="cMap">${opt(LEVELS.map((l,i)=>[i,`${i+1}. ${l.name}`]),room.map)}</select></label>`}
     <label>모드 <select id="cMode">${opt(Object.entries(MODES),m)}</select></label>
     ${m==='coop'?'':`<label>난이도 <select id="cDiff">${opt(Object.entries(DIFFS).map(([k,v])=>[k,v.label]),room.diff||'normal')}</select></label>`}
-    ${m==='first'?`<label>통과 <select id="cQuota">${opt([1,2,3,4,5,6,7,8,9,10,11].filter(v=>v<room.max).map(v=>[v,v+'명']),room.quota||1)}</select></label>`:''}
+    ${isFirst(m)?`<label>통과 <select id="cQuota">${opt([1,2,3,4,5,6,7,8,9,10,11].filter(v=>v<room.max).map(v=>[v,v+'명']),room.quota||1)}</select></label>`:''}
     ${m==='relay'?`<label>팀 <select id="cTeams">${opt([2,3,4,5,6].map(v=>[v,v+'팀']),nTeams())}</select></label>`:''}${teamy(m)?'<button class="rbtn" id="cMix">🔀 팀 섞기</button>':''}
     <label>인원 <select id="cMax">${opt([2,3,4,5,6,7,8,9,10,11,12].filter(v=>v>=n).map(v=>[v,v+'명']),room.max)}</select></label></div>
     <div class="rrow"><label><input type="checkbox" id="cPriv"${room.priv?' checked':''}> 🔒 비밀방</label><input type="password" id="cPw" maxlength="20" placeholder="${room.priv?'새 비밀번호':'비밀번호'}"><button class="rbtn" id="cPwSet">비밀방 적용</button><button class="rbtn force" id="forceBtn">⚡ 강제 재시작</button></div>`;
@@ -2162,6 +2165,72 @@ const CO=(()=>{
   console.assert(!doorCond(0,newWorld().cars)&&doorCond(1,[{x:110,y:900},{x:570,y:640}]),'coop doors');
   return self;
 })();
+// ---------- 🔫 선착순 강퇴: when the round closes, everyone who didn't make the cut (host excepted) is shot out of the room ----------
+const DEATHGUN=new Image();DEATHGUN.src='img/deathgun.jpg';
+const isFirst=m=>m==='first'||m==='firstk';
+const EX={key:'',t0:0,rows:[],shots:[],dur:0,lose:false,kicked:false,fired:-1};
+const firstkCap=()=>L?timeLimit()*L.cars.length*2:180; // a round closes anyway after twice the map's total time
+function firstkCheck(){ // on every room update and tick while racing: has the round closed?
+  if(mode!=='online'||!room||!net||rmode()!=='firstk'||curRound!==room.round||EX.key===roomCode+':'+curRound)return;
+  if(!/drive|parked|rewind|fail|result/.test(state))return;
+  const q=room.quota||1,ent=Object.entries(others).filter(([,o])=>o.round===room.round);
+  const pass=ent.filter(([,o])=>o.st==='done').sort((a,b)=>a[1].time-b[1].time).slice(0,q).map(([id])=>id);
+  if(pass.length<q&&now()<roomStart+firstkCap()*1000)return;
+  const host=room.host,nm=id=>String((others[id]||{}).name||'').slice(0,12),rows=[];
+  for(const id of pass)rows.push({id,name:nm(id),kind:'pass'});
+  if(!pass.includes(host)&&others[host])rows.push({id:host,name:nm(host),kind:'host'});
+  for(const [id] of ent)if(!pass.includes(id)&&id!==host)rows.push({id,name:nm(id),kind:'lose'});
+  const shots=rows.filter(r=>r.kind!=='pass');shots.forEach((r,i)=>r.shot=1.1+i*.62);
+  Object.assign(EX,{key:roomCode+':'+curRound,t0:t,rows,shots,dur:Math.max(2.6,1.1+shots.length*.62+1.4),lose:rows.some(r=>r.kind==='lose'&&r.id===net.uid),kicked:false,fired:-1});
+  state='execute';Snd.engine(-1);rwgif.hidden=true;
+  if(!rows.some(r=>r.kind==='pass'&&r.id===net.uid))net.status({st:'out',round:curRound}); // host included, so the room isn't stuck 'racing'
+}
+function exTick(){
+  const e=t-EX.t0;
+  for(let i=EX.fired+1;i<EX.shots.length&&e>=EX.shots[i].shot;i++){EX.fired=i;const r=EX.shots[i];
+    Snd.noise(.28,.7,900,0,null,'lowpass');Snd.noise(.07,.45,3200,0,null,'highpass');Snd.tone(70,.3,'sine',.4,0,38);
+    if(r.kind==='host')Snd.tone(1900,.14,'square',.09,.05,2600);}
+  if(e<EX.dur)return;
+  if(net&&net.isHost&&!EX.kicked){EX.kicked=true;for(const r of EX.rows)if(r.kind==='lose'&&others[r.id])net.kick(r.id);} // kicked/{uid} also blocks rejoining
+  if(!EX.lose)state='result';
+  else if(e>EX.dur+4){netNotice('🔫 탈락! 이 방에는 다시 들어올 수 없어요.');goMenu();} // host vanished before kicking: leave anyway
+}
+function drawExec(){
+  hud();const e=t-EX.t0,last=EX.shots.filter(r=>e>=r.shot).pop(),since=last?e-last.shot:9,k=Math.max(0,1-since/.18);
+  ctx.save();if(since<.14)ctx.translate((Math.random()-.5)*16*(1-since/.14),(Math.random()-.5)*16*(1-since/.14));
+  ctx.fillStyle='#0b0d14';ctx.fillRect(-20,-20,VW+40,VH+40);
+  const vg=ctx.createRadialGradient(VW/2,VH/2,VH*.2,VW/2,VH/2,VH*.8);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,`rgba(160,10,20,${.35+.3*k})`);ctx.fillStyle=vg;ctx.fillRect(0,0,VW,VH);
+  // the gun slides in from the right, kicks up on every shot
+  const port=VH>VW*1.05,gw=port?VW*1.05:Math.min(VW*.66,VH*1.25),gh=gw*558/1100,slide=Math.max(0,1-e/.5),gx=VW-gw*.92+slide*gw*.7+k*22,gy=(port?VH*.7:VH*.56)-gh*.5-k*16; // phones: names on top, gun below
+  ctx.save();ctx.translate(gx+gw*.6,gy+gh*.6);ctx.rotate(-.07*k);ctx.translate(-(gx+gw*.6),-(gy+gh*.6));
+  if(DEATHGUN.complete&&DEATHGUN.naturalWidth)ctx.drawImage(DEATHGUN,gx,gy,gw,gh);else{ctx.fillStyle='#3a3f4b';rr(ctx,gx+gw*.35,gy+gh*.15,gw*.25,gh*.18,8);ctx.fill();}
+  {const f=(x1,y1,x2,y2)=>{const g=ctx.createLinearGradient(x1,y1,x2,y2);g.addColorStop(0,'#0b0d14');g.addColorStop(1,'rgba(11,13,20,0)');return g;}; // feather the photo's edges into the dark
+   ctx.fillStyle=f(gx,0,gx+gw*.28,0);ctx.fillRect(gx-2,gy-2,gw*.28,gh+4);ctx.fillStyle=f(0,gy,0,gy+gh*.18);ctx.fillRect(gx,gy-2,gw+30,gh*.18);ctx.fillStyle=f(0,gy+gh,0,gy+gh*.82);ctx.fillRect(gx,gy+gh*.82,gw+30,gh*.18+2);}
+  ctx.restore();
+  const mx=gx+gw*.388,my=gy+gh*.2;
+  // rows of names on the left
+  const RH=Math.min(46*UIS,(VH*(port?.38:.62))/Math.max(1,EX.rows.length)),fs=Math.min(22*UIS,RH*.55),rw=port?VW*.62:Math.min(VW*.44,360*UIS),x0=24,y0=port?VH*.1:VH*.2;
+  EX.rows.forEach((r,i)=>{const y=y0+i*RH,appear=Math.min(1,Math.max(0,(e-i*.08)/.25));if(appear<=0)return;
+    const hit=r.shot!=null&&e>=r.shot,dt=hit?e-r.shot:0;let ox=0,rot=0,al=appear;
+    if(r.kind==='lose'&&hit&&dt>.3){const u=Math.min(1,(dt-.3)/.6);ox=-u*(rw+80);rot=-u*.5;al=1-u;}
+    if(al<=0)return;ctx.save();ctx.globalAlpha=al;ctx.translate(x0+ox+rw/2,y+RH/2);ctx.rotate(rot);
+    const bg=r.kind==='pass'?'#2a9d8f':r.kind==='host'?'#e0a800':hit&&dt<.12?'#ff595e':'rgba(255,255,255,.92)';
+    ctx.fillStyle=bg;rr(ctx,-rw/2,-RH*.42,rw,RH*.84,RH*.42);ctx.fill();
+    const label=r.kind==='pass'?`✅ ${r.name} · 통과`:r.kind==='host'?`👑 ${r.name} · 방장`:r.name;
+    text(label,-rw/2+18,fs*.36,fs,r.kind==='lose'&&!(hit&&dt<.12)?'#2b2d42':'#fff','left');
+    if(r.kind==='lose'&&hit){ctx.save();ctx.translate(rw/2-56,0);ctx.rotate(-.18);ctx.strokeStyle='#e63946';ctx.lineWidth=4;rr(ctx,-44,-fs*.75,88,fs*1.5,6);ctx.stroke();text('탈락',0,fs*.36,fs,'#e63946');ctx.restore();}
+    if(r.kind==='host'&&hit){const s=Math.min(1,dt/.12);ctx.save();ctx.translate(rw/2+30,0);ctx.scale(s,s);ctx.fillStyle='rgba(76,201,240,.35)';ctx.strokeStyle='#4cc9f0';ctx.lineWidth=4;
+      ctx.beginPath();for(let a=0;a<6;a++)ctx.lineTo(Math.cos(a/6*P*2+P/6)*RH*.55,Math.sin(a/6*P*2+P/6)*RH*.55);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+      if(dt<.5)text('팅!',rw/2+30,-RH*.5,fs,'#4cc9f0');}
+    ctx.restore();
+    r.tx=x0+rw+(r.kind==='host'?30:0);r.ty=y+RH/2;});
+  // muzzle flash and tracer for the latest shot
+  if(last&&since<.1){ctx.strokeStyle=`rgba(255,240,180,${1-since/.1})`;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(last.tx||x0+rw,last.ty||VH/2);ctx.stroke();}
+  if(last&&since<.08){const fl=ctx.createRadialGradient(mx,my,0,mx,my,70);fl.addColorStop(0,'rgba(255,255,230,1)');fl.addColorStop(.4,'rgba(255,190,60,.8)');fl.addColorStop(1,'rgba(255,120,0,0)');ctx.fillStyle=fl;ctx.beginPath();ctx.arc(mx,my,70,0,P*2);ctx.fill();}
+  ctx.restore();
+  pill(VW/2,12,'🔫 선착순 강퇴','center','#e63946','#fff',22);
+  if(e>EX.dur-1.2){const n=EX.rows.filter(r=>r.kind!=='lose').length;pill(VW/2,VH-16-34*UIS,EX.lose?'😵 탈락… 방에서 나가요':`살아남은 사람 ${n}명`,'center',EX.lose?'#e63946':'#2a9d8f','#fff',20);}
+}
 let acc=0,last=performance.now();
 function loop(n){const dt=Math.min(0.1,(n-last)/1000);if(slowT>0)slowT-=dt;if(nearCD>0)nearCD-=dt;acc+=dt*(slowT>0&&mode==='single'?.35:1);last=n;while(acc>=DT){step();acc-=DT;}draw();syncRoomCtl();{const w=state==='coop'?'⇄':'P';if(tpark.textContent!==w)tpark.textContent=w;}requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
@@ -2182,7 +2251,7 @@ document.querySelectorAll('.otab').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-opane]').forEach(p=>p.hidden=p.dataset.opane!==b.dataset.otab);}));
 const openTab=n=>document.querySelector(`.otab[data-otab="${n}"]`).click();
 $('rpriv').addEventListener('change',e=>{$('rpwl').hidden=!e.target.checked;});
-$('rmode').addEventListener('change',e=>{$('rquotal').hidden=e.target.value!=='first';});
+$('rmode').addEventListener('change',e=>{$('rquotal').hidden=!isFirst(e.target.value);});
 menu.addEventListener('click',e=>{const b=e.target.closest('button[data-diff]');if(!b)return;Snd.init();Snd.click();startSingle(b.dataset.diff);});
 const nickEl=$('nick');
 try{nickEl.value=localStorage.getItem('pp-nick')||('플레이어'+Math.floor(100+Math.random()*900));}catch{nickEl.value='플레이어';}
