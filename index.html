@@ -107,6 +107,7 @@ dialog::backdrop{background:rgba(30,40,60,.45)}
 .ft{padding:0 22px 20px;display:flex;justify-content:flex-end}
 .ft .mbtn{width:auto;padding:10px 26px}
 .mcol #mprev{display:block;width:100%;border-radius:14px;background:#8f97a5}
+.mpstar{margin:-4px 0 8px;font-size:13px;color:var(--muted)}.mpstar b{color:#e0a800;font-weight:700}
 .mpinfo{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0}.mpinfo b{font-family:Jua,sans-serif;font-weight:400;font-size:22px}.mpinfo span{font-size:13px;color:var(--muted)}
 .mapgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px;margin-top:8px}
 .mcell{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 4px;font:inherit;font-size:12px;cursor:pointer;color:var(--fg);text-align:center}
@@ -207,6 +208,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
             <h2 id="mapsTitle">🗺️ 맵 선택</h2>
             <canvas id="mprev" width="720" height="400"></canvas>
             <div class="mpinfo"><b id="mpname"></b><span id="mpmeta"></span></div>
+            <p id="mpstar" class="mpstar"></p>
             <button class="mbtn normal" id="mplay">▶ 시작</button>
             <div class="mapgrid" id="mapgrid"></div>
           </div>
@@ -312,7 +314,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
     <button data-htab="goal" aria-selected="true">🎯 목표</button><button data-htab="keys">🕹 조작</button><button data-htab="online">🌐 온라인</button><button data-htab="gacha">🎁 뽑기</button><button data-htab="save">💾 저장</button>
   </div>
   <div class="hsec" data-hsec="goal"><canvas width="960" height="340" data-anim="goal"></canvas><ul>
-    <li>빛나는 칸에 주차 → <b>100%</b>면 <kbd>Enter</kbd>로 확정</li><li>주차하면 시간이 <b>되감기</b>고 다음 차 차례</li><li>과거의 나 · 벽 · 다른 차에 부딪히면 그 차만 다시</li><li>난이도 5단계 · 맵 31개 · 맵마다 ★ 3개 · 깨면 다음 맵 열림</li><li>♾️ 무한 주차: 차가 끝없이 와요 · 목숨은 난이도별(초보 5 → 고수 1) · 20대마다 🛡 방어막 · 오래된 차는 출차</li><li>기믹: 🚶 사람 · 🚗 나가는 차 · 🚧 차단기 · ⛔ 일방통행 · 🚚 긴 차 · ❄️🌧 미끄러운 길 · 🔦 밤 — 모두 매번 똑같이 움직여요</li></ul></div>
+    <li>빛나는 칸에 주차 → <b>100%</b>면 <kbd>Enter</kbd>로 확정</li><li>주차하면 시간이 <b>되감기</b>고 다음 차 차례</li><li>과거의 나 · 벽 · 다른 차에 부딪히면 그 차만 다시</li><li>난이도 5단계 · 맵 31개 · 깨면 다음 맵 열림</li><li>★ 클리어 · ★★ 재시도 1번 이하 · ★★★ 재시도 없이 + 차마다 시간을 평균 35% 이상 남기기 (맵 선택 화면에 초로 나와요)</li><li>♾️ 무한 주차: 차가 끝없이 와요 · 목숨은 난이도별(초보 5 → 고수 1) · 20대마다 🛡 방어막 · 오래된 차는 출차</li><li>기믹: 🚶 사람 · 🚗 나가는 차 · 🚧 차단기 · ⛔ 일방통행 · 🚚 긴 차 · ❄️🌧 미끄러운 길 · 🔦 밤 — 모두 매번 똑같이 움직여요</li></ul></div>
   <div class="hsec" data-hsec="keys" hidden><canvas width="960" height="340" data-anim="keys"></canvas><ul>
     <li>⌨️ <kbd>↑</kbd> 전진 · <kbd>↓</kbd> 브레이크/후진 · <kbd>←</kbd><kbd>→</kbd> 조향 · <kbd>Space</kbd> 급정거 · <kbd>Enter</kbd> 주차 · <kbd>Esc</kbd> 메뉴</li>
     <li>🎮 RT 액셀 · LT 브레이크/후진 · 스틱 조향 · B 급정거 · A 주차</li>
@@ -403,7 +405,7 @@ const LEVELS=[
   L.deco.push(['arrow',300,1000,UP],['arrow',660,1000,UP],['arrow',300,450,UP],['arrow',660,450,UP],['zebra',480,1120,560,36]);
   car(L,400,1240,r[0]);car(L,560,1240,l[0]);
  }),
- lot('엇갈린 시간',17,1500,L=>{
+ lot('엇갈린 시간',19,1500,L=>{
   block(L,480,50,960,100,'bld');block(L,480,112,960,24,'walk');
   const a=rowH(L,180,156,14,UP,[3]),b1=rowH(L,180,520,14,P/2,[10]);rowH(L,180,582,14,UP,[]);
   rowH(L,180,940,14,P/2,[]);const c2=rowH(L,180,1002,14,UP,[1]);
@@ -416,7 +418,7 @@ const LEVELS=[
   L.lines.push([480,0,480,1600,'#ffd166',4,[26,18]]);L.deco.push(['zebra',480,120,340,30]);
   car(L,420,1530,l[0]);car(L,540,1530,r[1]);car(L,480,1450,r[0]);
  }),
- lot('병목',17,1700,L=>{
+ lot('병목',18,1700,L=>{
   block(L,480,50,960,100,'bld');
   const t=rowH(L,180,160,14,UP,[9]);rowH(L,180,520,14,P/2,[]);const m=rowH(L,180,582,14,UP,[4]);
   block(L,212,860,425,30,'wall');block(L,748,860,425,30,'wall');
@@ -433,7 +435,7 @@ const LEVELS=[
   block(L,840,1560,60,40,'bld');L.deco.push(['arrow',100,1500,UP],['arrow',860,1100,UP],['arrow',100,700,UP]);
   car(L,300,1730,r1[0]);car(L,440,1730,r2[0]);car(L,580,1730,r3[0]);car(L,720,1730,r4[0]);
  },'garage'),
- lot('사선 주차',16,1700,L=>{
+ lot('사선 주차',17,1700,L=>{
   block(L,480,40,960,80,'grass');
   const rows=[[200,[4]],[520,[8]],[840,[1]],[1160,[6]]].map(([y,e])=>{block(L,486,y-48,640,22,'grass');return rowH(L,200,y,12,UP,e,P/6,52);});
   L.deco.push(['arrow',100,1400,UP],['arrow',860,1400,UP]);
@@ -446,7 +448,7 @@ const LEVELS=[
   L.deco.push(['arrow',480,690,0],['arrow',690,900,P/2],['arrow',480,1110,P],['arrow',270,900,UP]);
   car(L,360,1730,r[0]);car(L,440,1730,l[1]);car(L,520,1730,l[0]);car(L,600,1730,r[1]);
  }),
- lot('블랙 프라이데이',20,2400,L=>{
+ lot('블랙 프라이데이',23,2400,L=>{
   block(L,480,70,960,140,'bld');block(L,480,160,960,40,'walk');
   const r1=rowH(L,180,214,14,UP,[7]),r2=rowH(L,180,560,14,P/2,[2]);rowH(L,180,622,14,UP,[]);
   const r4=rowH(L,180,960,14,P/2,[5]),r5=rowH(L,180,1022,14,UP,[12]);
@@ -464,7 +466,7 @@ const LEVELS=[
   const c=rowH(L,250,1120,11,UP,[5]);L.deco.push(['zebra',480,1002,640,40],['zebra',480,180,560,30],['arrow',300,900,UP],['arrow',660,900,UP]);
   car(L,330,1430,r[0]);car(L,480,1430,c[0]);car(L,630,1430,l[0]);
  }),
- lot('병원 주차장',17,1700,L=>{
+ lot('병원 주차장',19,1700,L=>{
   block(L,480,50,960,100,'bld');block(L,480,112,960,24,'walk');
   const a=rowH(L,180,190,14,UP,[11]),b=rowH(L,180,540,14,P/2,[3]);rowH(L,180,602,14,UP,[]);
   block(L,480,880,600,40,'grass');rowH(L,180,1100,14,P/2,[]);const c=rowH(L,180,1162,14,UP,[8]);
@@ -472,7 +474,7 @@ const LEVELS=[
   leaver(L,b[0][0],b[0][1],b[0][2],[[b[0][0],b[0][1]],[b[0][0],462],[420,410],[1060,410]],2.5,150,3); // 빈 칸은 진료 끝난 차가 나가야 생겨요
   car(L,300,1630,a[0]);car(L,480,1630,c[0]);car(L,660,1630,b[0]);
  }),
- lot('지하 2층',17,1900,L=>{
+ lot('지하 2층',19,1900,L=>{
   block(L,480,15,960,30,'wall');block(L,15,950,30,1900,'wall');block(L,945,950,30,1900,'wall');
   const r1=rowH(L,190,95,13,UP,[3]);rowH(L,190,420,13,P/2,[]);const r2=rowH(L,190,482,13,UP,[7]);pillars(L,190,451,13);
   block(L,300,700,420,24,'wall');block(L,800,700,180,24,'wall');
@@ -481,7 +483,7 @@ const LEVELS=[
   L.deco.push(['arrow',610,800,UP],['arrow',100,1600,UP],['arrow',860,1600,UP]);
   car(L,300,1830,r1[0]);car(L,440,1830,r2[0]);car(L,580,1830,r3[0]);car(L,720,1830,r4[0]);
  },'garage'),
- lot('눈 오는 날',17,1600,L=>{
+ lot('눈 오는 날',19,1600,L=>{
   block(L,480,40,960,80,'bld');
   const a=rowH(L,180,156,14,UP,[6]),b=rowH(L,180,520,14,P/2,[12]);rowH(L,180,582,14,UP,[]);
   rowH(L,180,940,14,P/2,[]);const c=rowH(L,180,1002,14,UP,[3]);
@@ -502,7 +504,7 @@ const LEVELS=[
   L.lines.push([480,0,480,1700,'#ffd166',4,[26,18]]);
   car(L,420,1630,l[0]);car(L,540,1630,r[1]);car(L,480,1560,r[0]);
  }),
- lot('공항 단기주차',17,2000,L=>{
+ lot('공항 단기주차',18,2000,L=>{
   block(L,480,60,960,120,'bld');
   const a=rowH(L,100,200,8,UP,[2]);rowH(L,560,200,8,UP,[]);
   rowH(L,100,560,8,P/2,[]);const b=rowH(L,560,560,8,P/2,[5]);rowH(L,100,622,8,UP,[]);rowH(L,560,622,8,UP,[]);
@@ -525,7 +527,7 @@ const LEVELS=[
   const m=rowH(L,250,1560,11,UP,[3]);L.deco.push(['arrow',480,520,0],['arrow',480,880,P]);
   car(L,330,1930,r[0]);car(L,430,1930,l[0]);car(L,530,1930,m[0]);car(L,630,1930,r[1]);
  }),
- lot('지그재그',25,2100,L=>{
+ lot('지그재그',27,2100,L=>{
   block(L,480,40,960,80,'bld');
   const a=rowH(L,180,160,14,UP,[7]);block(L,370,560,740,30,'wall');
   const b=rowH(L,180,810,14,UP,[2]);block(L,590,1060,740,30,'wall');
@@ -533,14 +535,14 @@ const LEVELS=[
   L.deco.push(['arrow',850,470,UP],['arrow',110,970,UP],['arrow',850,1470,UP]);
   car(L,330,2030,a[0]);car(L,480,2030,b[0]);car(L,630,2030,c[0]);
  }),
- lot('두 개의 로터리',18,2200,L=>{
+ lot('두 개의 로터리',19,2200,L=>{
   block(L,480,40,960,80,'bld');
   const r=colV(L,890,200,39,0,[8,30]),l=colV(L,70,200,39,P,[20]);
   block(L,480,600,260,260,'round');block(L,480,1400,260,260,'round');
   for(const cy of[600,1400]){oneway(L,480,cy-175,260,90,0);oneway(L,655,cy,90,260,P/2);oneway(L,480,cy+175,260,90,P);oneway(L,305,cy,90,260,-P/2);} // 로터리는 시계 방향으로만
   car(L,360,2130,r[0]);car(L,480,2130,l[0]);car(L,600,2130,r[1]);
  }),
- lot('아파트 단지',18,2000,L=>{
+ lot('아파트 단지',19,2000,L=>{
   block(L,480,60,960,120,'grass');
   const a=rowH(L,180,380,14,UP,[9]);
   block(L,250,800,300,200,'bld');block(L,710,800,300,200,'bld');gate(L,480,800,160,14,6,3,0); // 단지 출입 차단기: 3초 열림 · 3초 닫힘
@@ -568,7 +570,7 @@ const LEVELS=[
   L.deco.push(['arrow',480,760,0],['arrow',480,1240,P]);
   car(L,330,2230,r[0]);car(L,430,2230,t[0]);car(L,530,2230,b[0]);car(L,630,2230,l[0]);
  }),
- lot('지하 3층',20,2200,L=>{
+ lot('지하 3층',22,2200,L=>{
   block(L,480,15,960,30,'wall');block(L,15,1100,30,2200,'wall');block(L,945,1100,30,2200,'wall');
   const r1=rowH(L,190,95,13,UP,[9]);
   const r2=rowH(L,190,420,13,P/2,[2]);rowH(L,190,482,13,UP,[]);pillars(L,190,451,13,2);
@@ -578,13 +580,13 @@ const LEVELS=[
   L.deco.push(['arrow',100,1900,UP],['arrow',860,1900,UP]);
   car(L,250,2130,r1[0]);car(L,370,2130,r2[0]);car(L,490,2130,r3[0]);car(L,610,2130,r4[0]);car(L,730,2130,r5[0]);
  },'garage'),
- lot('항구 컨테이너',19,2200,L=>{
+ lot('항구 컨테이너',20,2200,L=>{
   const r=colV(L,890,200,40,0,[12,33]),l=colV(L,70,200,40,P,[25]);
   for(const y of[350,750,1150,1550]){block(L,330,y,160,260,'box');block(L,630,y+200,160,260,'box');}
   L.lines.push([438,158,522,158],[438,158,438,242],[522,158,522,242]);
   car(L,400,2130,r[0]);truck(L,480,2120,[480,200,UP,84,34]);car(L,560,2130,r[1]);
  }),
- lot('미로 주차장',25,2400,L=>{
+ lot('미로 주차장',28,2400,L=>{
   const a=rowH(L,180,160,14,UP,[3]);
   block(L,200,450,400,30,'wall');block(L,760,450,400,30,'wall');
   const b=rowH(L,180,675,14,P/2,[10]);block(L,480,900,560,30,'wall');
@@ -598,7 +600,7 @@ const LEVELS=[
   const rows=[[200,[3]],[500,[10]],[800,[6]],[1100,[1]],[1400,[8]]].map(([y,e],k)=>{block(L,486,y-48,640,22,'grass');return rowH(L,200,y,12,UP,e,k%2?-P/5:P/5,52);});
   car(L,240,2130,rows[0][0]);car(L,360,2130,rows[1][0]);car(L,480,2130,rows[2][0]);car(L,600,2130,rows[3][0]);car(L,720,2130,rows[4][0]);
  }),
- lot('크리스마스 이브',20,2300,L=>{
+ lot('크리스마스 이브',21,2300,L=>{
   block(L,480,40,960,80,'bld');
   const a=rowH(L,180,160,14,UP,[4]);rowH(L,180,520,14,P/2,[]);const b=rowH(L,180,582,14,UP,[9]);
   const c=rowH(L,180,940,14,P/2,[13]);rowH(L,180,1002,14,UP,[]);
@@ -606,7 +608,7 @@ const LEVELS=[
   for(const [x,y,w,h] of[[300,760,60,40],[700,1180,70,40],[480,1600,80,40],[110,2000,60,40],[850,2000,60,40]])block(L,x,y,w,h,'pile');
   car(L,240,2230,a[0]);car(L,360,2230,b[0]);car(L,480,2230,c[0]);car(L,600,2230,d[0]);car(L,720,2230,e[0]);
  },'snow'),
- lot('한밤의 마트',21,2400,L=>{
+ lot('한밤의 마트',24,2400,L=>{
   block(L,480,70,960,140,'bld');block(L,480,160,960,40,'walk');
   const r1=rowH(L,180,214,14,UP,[2]),r2=rowH(L,180,560,14,P/2,[9]);rowH(L,180,622,14,UP,[]);
   const r4=rowH(L,180,960,14,P/2,[12]),r5=rowH(L,180,1022,14,UP,[5]);
@@ -618,7 +620,7 @@ const LEVELS=[
   L.dark=true;leaver(L,r5[0][0],r5[0][1],r5[0][2],[[r5[0][0],r5[0][1]],[r5[0][0],1100],[330,1170],[-100,1170]],3,140,5);
   car(L,100,2330,r1[0]);car(L,220,2330,r2[0]);car(L,340,2330,r4[0]);car(L,620,2330,r5[0]);car(L,740,2330,r6[0]);car(L,860,2330,r9[0]);
  },'night'),
- lot('대형 쇼핑몰',22,2600,L=>{
+ lot('대형 쇼핑몰',23,2600,L=>{
   block(L,480,70,960,140,'bld');block(L,480,160,960,40,'walk');
   const r1=rowH(L,180,214,14,UP,[6]);
   const r2=rowH(L,180,560,14,P/2,[1]),r3=rowH(L,180,622,14,UP,[11]);
@@ -1436,7 +1438,8 @@ const g=$('mapgrid');g.textContent='';
   showPick();
 }
 function showPick(){const lv=LEVELS[pickMap],k=pickMap+':'+diff;$('mpname').textContent=`${pickMap+1}. ${lv.name}`;
-  $('mpmeta').textContent=`차 ${lv.cars.length}대 · 차당 ${(lv.time*D.timeMul).toFixed(0)}초 · 최고 ${(PROF.best||{})[k]||0}점`;pv.lv=lv;pv.t0=performance.now();}
+  $('mpmeta').textContent=`차 ${lv.cars.length}대 · 차당 ${(lv.time*D.timeMul).toFixed(0)}초 · 최고 ${(PROF.best||{})[k]||0}점`;
+  $('mpstar').innerHTML=`<b>★</b> 클리어 · <b>★★</b> 재시도 1번 이하 · <b>★★★</b> 재시도 없이 + 차마다 평균 ${(STAR3*lv.time*D.timeMul).toFixed(1)}초 이상 남기기`;pv.lv=lv;pv.t0=performance.now();}
 function loadLevel(i){li=i;L=i<0?DAILY:LEVELS[i];ci=0;ghosts=[];coins=mode==='single'?genCoins(L):null;coinGain=0;menu.hidden=true;cv.focus();startRound();camY=camTarget();}
 function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p,add=L.inf?0:D.spotAdd;return[x,y,a,w+add,h+add];}
 const timeLimit=()=>L.time*(L.inf?1:D.timeMul); // 무한 주차: same time at every difficulty
@@ -1470,9 +1473,12 @@ function closeOnline(){wantOnline=false;watchRooms(false);if(onlineOpen&&net){ne
 function enterRoom(code,r){curRound=-1;
   preloadGif();watchRooms(false);mode='online';roomCode=code;room=r;onlineMap=r.map;diff=DIFFS[r.diff]?r.diff:'normal';D=DIFFS[diff];
   L=LEVELS[r.map];li=r.map;ghosts=[];players=[];others=r.players||{};live={};state='lobby';menu.hidden=true;cv.focus();camY=Math.max(0,L.h-VH);
+  // the server's first room update can land while joining, before mode is 'online'; apply it now or the list stays empty until something changes
+  const pr=pendingRoom;pendingRoom=null;if(pr&&pr.host===r.host&&pr.created===r.created)onRoomUpdate(pr);
 }
+let pendingRoom=null;
 function onRoomUpdate(r){
-  if(mode!=='online')return;
+  if(mode!=='online'){pendingRoom=r;return;}
   if(!r){netNotice('방이 닫혔어요. (방장이 나갔어요)');goMenu();return;}
   room=r;others=r.players||{};onlineMap=r.map;
   if(!/drive|parked|rewind|fail|countdown|spectate|coop/.test(state)){diff=DIFFS[r.diff]?r.diff:'normal';D=DIFFS[diff];} // a race keeps the difficulty it started with
@@ -1584,6 +1590,7 @@ function action(){
   else if(state==='replay')doClear();
   else if(state==='clear'){if(li<0)showMenu('home');else if(li+1<LEVELS.length){pickMap=li+1;playMap(li+1);}else showMenu('maps');}
 }
+const STAR3=.35;let starHint='';
 const finalScore=()=>Math.max(0,Math.round(score*D.mult));
 const ghostAt=(r,i)=>r[Math.min(i,r.length-1)];
 function burst(x,y,n,cols,spd,life,grav,size){
@@ -1650,7 +1657,8 @@ function doClear(){
   if(li<0)return dailyClear();
   {state='clear';lastGain=CLEAR_COIN[diff]+coinGain;coinGain=0;
     // ★3: no retry and on average ≥35% time left · ★2: at most one retry · ★1: cleared
-    lastStars=attempts===0&&leftSum/L.cars.length>=.35?3:attempts<=1?2:1;
+    lastStars=attempts===0&&leftSum/L.cars.length>=STAR3?3:attempts<=1?2:1;
+    {const avg=leftSum/L.cars.length*timeLimit(),need=STAR3*timeLimit();starHint=lastStars===3?'':attempts>0?`★★★ 조건: 재시도 없이 (이번 재시도 ${attempts}번)`:`★★★까지 차마다 평균 ${(need-avg+.05).toFixed(1)}초 더 남겨야 해요`;}
     const k=li+':'+diff,fs=finalScore();PROF.best=PROF.best||{};PROF.star=PROF.star||{};
     lastBest=!(PROF.best[k]>=fs);if(lastBest)PROF.best[k]=fs;const newStars=Math.max(0,lastStars-(PROF.star[k]||0));PROF.star[k]=Math.max(PROF.star[k]||0,lastStars);lastGain+=newStars*STAR_COIN;lastReward=starRewards();
     PROF.coins+=lastGain;saveProf();noteUnlocks();submitScore(diff,Object.entries(PROF.best).filter(([kk])=>kk.endsWith(':'+diff)).reduce((a,[,v])=>a+v,0));
@@ -1909,9 +1917,9 @@ function draw(){
     pill(VW/2,VH*.62,'◀◀  되감기','center','#1982c4','#fff',34);}
   if(state==='fail')card('음...수듄 ㅋ',`${msg} · Space / 탭으로 다시`,'#ff595e',170,'galtong');
   if(state==='infover')card(`♾️ ${infN}대 주차${infBestNew&&infN?' NEW!':''}`,`🪙 +${lastGain} · ${D.label} 최고 ${(PROF.best||{})['inf-'+diff]||0}대 · Space 다시 · Esc 메뉴`,'#6a4c93',170,infN>=20?'ddabong':'galtong');
-  if(state==='clear'&&lastReward.length)pill(VW/2,VH/2+95*Math.min(UIS,1.4)+15,'🏅 '+lastReward.join(' · '),'center','#e0a800','#fff',18);
   if(state==='clear'&&li<0)card(`📅 오늘의 주차장 · ${finalScore()}점${lastBest?' NEW!':''}`,`🪙 +${lastGain} · 오늘 ${dailyRank()} · Space 메뉴`,'#2a9d8f',170,'grin');
   else if(state==='clear')card(`🎉 ${'★'.repeat(lastStars)}${'☆'.repeat(3-lastStars)} · ${finalScore()}점${lastBest?' NEW!':''}`,`🪙 +${lastGain} · `+(li+1<LEVELS.length?'Space 다음 맵 · Esc 맵 선택':'Esc 맵 선택'),'#2a9d8f',170,'grin');
+  if(state==='clear'&&li>=0){const y0=VH/2+95*Math.min(UIS,1.4)+15,dy=(18+14)*UIS+8;let y=y0;if(lastReward.length){pill(VW/2,y,'🏅 '+lastReward.join(' · '),'center','#e0a800','#fff',18);y+=dy;}if(starHint)pill(VW/2,y,starHint,'center','rgba(43,45,66,.9)','#ffd166',16);}
 }
 let kickBoxes=[],kickAsk='',kickAskT=-9;
 function drawRoom(){kickBoxes=[];
