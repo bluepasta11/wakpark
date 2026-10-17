@@ -187,13 +187,20 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
           <div class="mcol" id="msingle" hidden>
             <button class="back" data-back>← 뒤로</button>
             <h2>🚗 싱글 플레이</h2>
-            <p>난이도를 고르고 31개 맵 중 하나를 골라요. 맵을 깨면 다음 맵이 열려요. ♾️ 무한 주차는 맵 선택 화면에 있어요.</p>
+            <p>난이도를 고르고 31개 맵 중 하나를 골라요. 맵을 깨면 다음 맵이 열려요.</p>
             <button class="mbtn beginner" data-diff="beginner">초보 <small>시간 2배 · 판정 아주 너그러움 · ×0.7</small></button>
             <button class="mbtn easy" data-diff="easy">쉬움 <small>시간 넉넉 · 판정 너그러움 · ×1</small></button>
             <button class="mbtn normal" data-diff="normal">보통 <small>×1.5</small></button>
             <button class="mbtn hard" data-diff="hard">어려움 <small>시간 촉박 · 좁은 칸 · ×2.2</small></button>
             <button class="mbtn master" data-diff="master">고수 <small>아주 촉박 · 칸 딱 맞게 · ×3</small></button>
-            <button class="mbtn online" id="goCoop" style="margin-top:14px">🏰 협동 파크 연습 <small>혼자 4대를 번갈아 · 온라인 협동전 연습</small></button>
+            <button class="mbtn shop" id="goInf" style="margin-top:14px">♾️ 무한 주차 <small>차가 끝없이 와요 · 누르면 난이도 선택</small></button>
+            <button class="mbtn online" id="goCoop">🏰 협동 파크 연습 <small>혼자 4대를 번갈아 · 온라인 협동전 연습</small></button>
+          </div>
+          <div class="mcol" id="minf" hidden>
+            <button class="back" data-back="single">← 뒤로</button>
+            <h2>♾️ 무한 주차</h2>
+            <p>큰 주차장 하나에 차가 끝없이 와요. 칸 크기·시간은 모든 난이도가 같고 <b>목숨만</b> 달라요. 20대마다 🛡 방어막, 오래된 차는 출차해요.</p>
+            <div id="infdiffs"></div>
           </div>
           <div class="mcol" id="mmaps" hidden>
             <button class="back" data-back="single">← 난이도</button>
@@ -201,7 +208,6 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
             <canvas id="mprev" width="720" height="400"></canvas>
             <div class="mpinfo"><b id="mpname"></b><span id="mpmeta"></span></div>
             <button class="mbtn normal" id="mplay">▶ 시작</button>
-            <button class="mbtn online" id="goInf">♾️ 무한 주차</button>
             <div class="mapgrid" id="mapgrid"></div>
           </div>
           <div class="mcol" id="monline" hidden>
@@ -867,7 +873,7 @@ cv.addEventListener('pointerdown',e=>{cv.focus();
     if(b){Snd.click();if(kickAsk===b.id&&t-kickAskT<3){const nm=others[b.id]?others[b.id].name:'';net.kick(b.id);say(`${nm}님을 강퇴했어요`);kickAsk='';}else{kickAsk=b.id;kickAskT=t;}return;}}
   action();});
 const KEYMAP={up:['ArrowUp','KeyW'],down:['ArrowDown','KeyS'],left:['ArrowLeft','KeyA'],right:['ArrowRight','KeyD'],brake:['Space','ShiftLeft','ShiftRight']};
-function goMenu(){if(state!=='menu'&&li<0&&mode==='single'){showMenu('home');return;}if(state==='menu'){if(!document.getElementById('mhome').offsetParent)menuPane('home');return;}const was=mode;if(was==='online'&&net)net.leave();mode='single';showMenu(was==='online'?'online':D&&L?'maps':'home');}
+function goMenu(){if(state!=='menu'&&li<0&&mode==='single'){showMenu(li===-2?'inf':'home');return;}if(state==='menu'){if(!document.getElementById('mhome').offsetParent)menuPane('home');return;}const was=mode;if(was==='online'&&net)net.leave();mode='single';showMenu(was==='online'?'online':D&&L?'maps':'home');}
 
 // ---------- gamepad (standard mapping: Xbox / PlayStation / Switch Pro) ----------
 // RT 액셀(아날로그) · LT 브레이크→후진(아날로그) · 왼쪽 스틱 조향 · B/X 급정거 · A 주차 확정/계속 · Start 계속 · Back 메뉴
@@ -1416,7 +1422,7 @@ const unlocked=i=>i===0||Object.keys(PROF.best||{}).some(k=>k.startsWith((i-1)+'
 const stars=i=>(PROF.star||{})[i+':'+diff]||0;
 function renderMaps(){
   $('mapsTitle').textContent=`🗺️ 맵 선택 · ${D.label}`;
-  $('goInf').innerHTML=`♾️ 무한 주차 <small>목숨 ${INF_LIVES[diff]}개 · 20대마다 🛡 · 최고 ${(PROF.best||{})['inf-'+diff]||0}대</small>`;const g=$('mapgrid');g.textContent='';
+const g=$('mapgrid');g.textContent='';
   if(!unlocked(pickMap))pickMap=0;
   LEVELS.forEach((lv,i)=>{const b=document.createElement('button');b.className='mcell'+(i===pickMap?' on':'');const open=unlocked(i);b.disabled=!open;
     const st=stars(i);b.innerHTML=`<b>${i+1}</b>${open?lv.name:'🔒'}<i>${open?'★'.repeat(st)+'☆'.repeat(3-st):''}</i>`;
@@ -1438,10 +1444,11 @@ function showMenu(pane='home'){rwgif.hidden=true;state='menu';Snd.duck(false);me
 // only the online pane touches the Realtime Database (100 simultaneous connections on the free plan)
 let onlineOpen=false,wantOnline=false;
 function menuPane(n){if(n==='home'&&typeof refreshDaily==='function')refreshDaily();
-  for(const id of['home','single','online','shop','maps'])document.getElementById('m'+id).hidden=id!==n;
+  for(const id of['home','single','online','shop','maps','inf'])document.getElementById('m'+id).hidden=id!==n;
   if(n==='online')openOnline();else closeOnline();
   if(n==='shop'){renderCoins();renderGarage();}
   if(n==='maps')renderMaps();
+  if(n==='inf')renderInf();
 }
 function openOnline(){
   wantOnline=true;if(onlineOpen)return watchRooms(true);
@@ -2238,7 +2245,11 @@ requestAnimationFrame(loop);
 // ---------- menu, online lobby UI & help ----------
 const $=id=>document.getElementById(id),netmsgEl=$('netmsg');
 const netNotice=s=>{netmsgEl.textContent=s;};
-$('goInf').addEventListener('click',()=>{Snd.init();Snd.click();mode='single';startInf();});
+$('goInf').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('inf');});
+function renderInf(){const box=$('infdiffs');box.textContent='';
+  for(const [k,v] of Object.entries(DIFFS)){const b=document.createElement('button');b.className='mbtn '+k;
+    b.innerHTML=`${v.label} <small>❤️ 목숨 ${INF_LIVES[k]}개 · 최고 ${(PROF.best||{})['inf-'+k]||0}대</small>`;
+    b.addEventListener('click',()=>{Snd.init();Snd.click();mode='single';diff=k;D=DIFFS[k];startInf();});box.append(b);}}
 $('goSingle').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('single');});
 $('goCoop').addEventListener('click',()=>{Snd.init();Snd.click();mode='single';CO.start(true);});
 $('goOnline').addEventListener('click',()=>{Snd.init();Snd.click();menuPane('online');});
