@@ -250,7 +250,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;margin:4px 0}
             <div data-spane="gacha">
               <div class="gbox"><h3>🚙 형태 뽑기</h3><div class="row2"><button class="mbtn normal" data-pull="form:1">1회 <small>🪙 30</small></button><button class="mbtn hard" data-pull="form:11">10+1회 <small>🪙 300</small></button></div></div>
               <div class="gbox"><h3>🎨 스킨 뽑기</h3><div class="row2"><button class="mbtn normal" data-pull="skin:1">1회 <small>🪙 30</small></button><button class="mbtn hard" data-pull="skin:11">10+1회 <small>🪙 300</small></button></div></div>
-              <div class="gbox"><h3>✨ 장식 뽑기 <small>지붕 · 흔적 · 주차 효과 · 고스트</small></h3><div class="row2"><button class="mbtn normal" data-pull="deco:1">1회 <small>🪙 30</small></button><button class="mbtn hard" data-pull="deco:11">10+1회 <small>🪙 300</small></button></div></div>
+              <div class="gbox"><h3>✨ 장식 뽑기 <small>지붕 · 흔적 · 주차 효과</small></h3><div class="row2"><button class="mbtn normal" data-pull="deco:1">1회 <small>🪙 30</small></button><button class="mbtn hard" data-pull="deco:11">10+1회 <small>🪙 300</small></button></div></div>
               <div class="gbox"><h3>🧩 조각 교환 <small>보유 <span class="fragN">0</span>개 · 중복 1개당 1조각 · 아직 없는 것 중 랜덤</small></h3><div class="row3"><button class="mbtn normal" data-ex="희귀">희귀 확정 <small>🧩 10</small></button><button class="mbtn beginner" data-ex="영웅" style="background:#8e44ad;box-shadow:0 4px 0 #5e2d73">영웅 확정 <small>🧩 25</small></button><button class="mbtn shop" data-ex="전설">전설 확정 <small>🧩 60</small></button></div></div>
               <details><summary>📊 확률 보기</summary><div id="rates"></div></details>
             </div>
@@ -1096,11 +1096,15 @@ const ORDER=['일반','희귀','영웅','전설','유일'];
 console.assert(Object.values(RATES).every(r=>Math.abs(r.reduce((s,[,p])=>s+p,0)-100)<1e-9),'rates must sum to 100');
 const NEWPROF=()=>({coins:START_COINS,forms:['sedan'],skins:['red'],eq:{f:'sedan',s:'red'}});
 let PROF=NEWPROF();
-try{const s=JSON.parse(localStorage.getItem('wp-prof'));if(s&&Array.isArray(s.forms))PROF=s;}catch{}
+// 고스트 효과 장식은 없어졌어요: 과거 차는 형태·스킨만 보여요. 가지고 있던 건 중복 환급만큼 돌려줘요
+const RETIRED={after:20,film:20,holo:50};let retiredBack=0;
+function retire(p){if(!p||!Array.isArray(p.deco))return 0;let back=0;p.deco=p.deco.filter(id=>{if(RETIRED[id]!=null){back+=RETIRED[id];return false;}return true;});if(p.eq)delete p.eq.h;if(back)p.coins=(p.coins||0)+back;return back;}
+try{const s=JSON.parse(localStorage.getItem('wp-prof'));if(s&&Array.isArray(s.forms)){PROF=s;retiredBack=retire(PROF);}}catch{}
+setTimeout(()=>{if(retiredBack){const b=retiredBack;retiredBack=0;saveProf();toast(`👻 고스트 효과가 없어져서 🪙 +${b} 돌려드렸어요`);}},3000); // offline: no server profile will arrive
 let profTimer=0;
 function saveProf(){try{localStorage.setItem('wp-prof',JSON.stringify(PROF));}catch{}
   clearTimeout(profTimer);profTimer=setTimeout(()=>{if(net&&net.saveProf)net.saveProf(PROF).catch(e=>console.error(e));},800);renderCoins();}
-function setProf(p){if(p&&Array.isArray(p.forms)){PROF=p;try{localStorage.setItem('wp-prof',JSON.stringify(PROF));}catch{}renderCoins();renderGarage();}}
+function setProf(p){if(p&&Array.isArray(p.forms)){PROF=p;{const b=retire(PROF)||retiredBack;retiredBack=0;if(b)setTimeout(()=>{saveProf();toast(`👻 고스트 효과가 없어져서 🪙 +${b} 돌려드렸어요`);},0);} /* the server copy replaces the local one, so the refund is counted once */try{localStorage.setItem('wp-prof',JSON.stringify(PROF));}catch{}renderCoins();renderGarage();}}
 function addCoins(n){if(n>0){PROF.coins+=n;saveProf();}}
 const myLook=()=>({f:PROF.eq.f,s:PROF.eq.s,r:PROF.eq.r});
 function roll(kind,minTier){
@@ -1147,10 +1151,9 @@ const DECOS=[
  {id:'crown',n:'왕관',r:'보상',slot:'roof',need:'완벽 주차 50번'},
  {id:'bubble',n:'비눗방울',r:'일반',slot:'trail'},{id:'heart',n:'하트',r:'희귀',slot:'trail'},{id:'stardust',n:'별가루',r:'희귀',slot:'trail'},{id:'fire',n:'불꽃',r:'영웅',slot:'trail'},{id:'rainbowt',n:'무지개 길',r:'전설',slot:'trail'},
  {id:'confetti',n:'꽃가루',r:'일반',slot:'fx'},{id:'heartfx',n:'하트 폭발',r:'일반',slot:'fx'},{id:'firework',n:'폭죽',r:'희귀',slot:'fx'},{id:'coinfx',n:'왁코인 비',r:'영웅',slot:'fx'},
- {id:'after',n:'잔상',r:'희귀',slot:'ghost'},{id:'film',n:'흑백 필름',r:'희귀',slot:'ghost'},{id:'holo',n:'홀로그램',r:'영웅',slot:'ghost'},
 ];
 const DECO=Object.fromEntries(DECOS.map(d=>[d.id,d]));
-const SLOTS={roof:'🎩 지붕 장식',trail:'💨 주행 흔적',fx:'🎆 주차 효과',ghost:'👻 고스트 효과'},SLOTKEY={roof:'r',trail:'t',fx:'x',ghost:'h'};
+const SLOTS={roof:'🎩 지붕 장식',trail:'💨 주행 흔적',fx:'🎆 주차 효과'},SLOTKEY={roof:'r',trail:'t',fx:'x'};
 const DECO_ICON={bubble:'🫧',heart:'💗',stardust:'✨',fire:'🔥',rainbowt:'🌈',confetti:'🎊',heartfx:'💖',firework:'🎆',coinfx:'🪙',after:'👥',film:'🎞️',holo:'🔷'};
 RATES.deco=[['일반',55],['희귀',30],['영웅',12],['전설',3]];
 function drawRoofDeco(g,id,t){
@@ -1185,13 +1188,15 @@ function parkFx(x,y){
   else burst(x,y,46,COLORS.concat('#fff'),260,1.1,320,6);
   if(PROF.eq.s==='police'&&PROF.eq.r==='beacon'){for(let i=0;i<4;i++)Snd.tone(i%2?740:960,.22,'triangle',.08,i*.22);} // 경찰 세트 보너스: 사이렌
 }
-function drawGhost(g,rec,frame,color,alpha,big){
-  const id=PROF.eq.h,q=ghostAt(rec,frame);
-  if(id==='after')for(const [d,al] of[[12,.15],[6,.3]]){const o=ghostAt(rec,Math.max(0,frame-d));drawCar(g,o[0],o[1],o[2],color,alpha*al,null,myLook());}
-  if(id==='film')g.filter='grayscale(1) contrast(1.2)';
-  drawCar(g,q[0],q[1],q[2],color,id==='holo'?alpha*.7:alpha,color,myLook(),big);
-  g.filter='none';
-  if(id==='holo'){g.save();g.translate(q[0],q[1]);g.rotate(q[2]);g.globalAlpha=.5;g.fillStyle='#4cc9f0';for(let y=-11;y<11;y+=3)g.fillRect(-22,y+(performance.now()/60)%3,44,1);g.strokeStyle='#4cc9f0';g.lineWidth=1.5;g.strokeRect(-23,-12,46,24);g.restore();}
+// past cars: form + skin only (no roof deco, trail or effects), drawn from a cached sprite so many ghosts stay cheap
+const GSPR=new Map();
+function ghostSprite(look,color,big){const key=[look.f,look.s,color,big?1:0].join('|');let c=GSPR.get(key);
+  if(!c){const S=3;c=document.createElement('canvas');c.width=80*S;c.height=50*S;const g=c.getContext('2d');g.scale(S,S);g.translate(40,25);if(big)g.scale(32/22,12/11);drawLook(g,{f:look.f,s:look.s},color);GSPR.set(key,c);}
+  return c;}
+function drawGhost(g,rec,frame,color,alpha,big,look=myLook()){
+  const q=ghostAt(rec,frame);g.save();g.translate(q[0],q[1]);g.rotate(q[2]);g.globalAlpha=alpha;
+  g.strokeStyle='#fff';g.lineWidth=5;rr(g,-23*(big?32/22:1),-12*(big?12/11:1),46*(big?32/22:1),24*(big?12/11:1),8);g.stroke();g.strokeStyle=color;g.lineWidth=2.5;g.stroke();
+  g.drawImage(ghostSprite(look,color,big),-40,-25,80,50);g.restore();
 }
 // ---------- 내 주차장 ----------
 const FLOORS=[['lot','아스팔트',()=>true,'기본'],['grass','잔디 광장',()=>totalStars()>=12,'★12'],['garage','지하 주차장',()=>totalStars()>=24,'★24'],['snow','눈밭',()=>totalStars()>=48,'★48'],
@@ -1875,11 +1880,11 @@ function draw(){
     return;}
   drawSpots();drawCoins();
   const frame=state==='rewind'?Math.max(0,rewindF):state==='replay'?replayF:players[0].rec.length;
-  for(const g of ghosts){drawTrail(ctx,g.r,frame,PROF.eq.t);drawGhost(ctx,g.r,frame,g.color,state==='rewind'||state==='replay'?.9:.6,g.d&&g.d[0]>HW);}
+  for(const g of ghosts){drawGhost(ctx,g.r,frame,g.color,state==='rewind'||state==='replay'?.9:.6,g.d&&g.d[0]>HW);}
   drawDyn(frame);
   for(let i=pops.length-1;i>=0;i--){const q=pops[i],e=t-q.t;if(e>1.4){pops.splice(i,1);continue;}ctx.globalAlpha=Math.min(1,(1.4-e)*2);pill(q.x,q.y-e*30,q.s,'center',q.c,'#fff',18);ctx.globalAlpha=1;}
   if(mode==='online')for(const id in live){const o=live[id],pl=others[id];if(id===net.uid||!pl||pl.st!=='race'||o.x==null||(pl.mp!=null&&pl.mp!==li))continue;
-    const [lf,ls]=String(pl.lk||'').split('.');drawCar(ctx,o.x,o.y,o.a,'#ffffff',.55,null,{f:FORM[lf]?lf:'sedan',s:SKIN[ls]?ls:undefined});pill(o.x,o.y-48,String(pl.name).slice(0,12),'center','rgba(255,255,255,.8)','#2b2d42',13);}
+    const [lf,ls]=String(pl.lk||'').split('.');ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.a);ctx.globalAlpha=.55;ctx.drawImage(ghostSprite({f:FORM[lf]?lf:'sedan',s:SKIN[ls]?ls:undefined},'#ffffff',false),-40,-25,80,50);ctx.restore();pill(o.x,o.y-48,String(pl.name).slice(0,12),'center','rgba(255,255,255,.8)','#2b2d42',13);}
   const p=players[0];
   if(state==='drive'||state==='fail'||state==='parked'){const c=p.car;drawTrail(ctx,p.rec,p.rec.length,PROF.eq.t);drawCar(ctx,c.x,c.y,c.a,COLORS[ci%COLORS.length],p.out?.45:1,COLORS[ci%COLORS.length],myLook(),dimOf(ci)[0]>HW);
     if(state==='drive'&&p.pct>0){const ok=p.pct===100;
