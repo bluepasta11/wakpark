@@ -786,7 +786,11 @@ const Snd={c:null,bgm:null,sfx:null,vol:{bgm:.5,sfx:.7},
   ready(){this.tone(880,.08,'square',.07);this.tone(1320,.12,'square',.07,.07);},
   crash(){const k=.8+Math.random()*.5;this.noise(.45,.6,700*k);this.tone(140*k,.35,'sawtooth',.25,0,40);this.noise(.2,.3,3000*k,.03,null,'bandpass');},
   reverse(){this.tone(1050,.12,'square',.045);},
-  squeal(){this.noise(.25,.12,2600+Math.random()*600,0,null,'bandpass');},
+  squeal(){ // tyre squeal: soft attack + wobbling pitch (the old instant noise burst sounded like a firecracker)
+    const c=this.c;if(!c)return;const t=c.currentTime,dur=.5,g=c.createGain(),o=c.createOscillator(),lfo=c.createOscillator(),lg=c.createGain();
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.09);g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+    o.type='triangle';o.frequency.setValueAtTime(1250,t);o.frequency.linearRampToValueAtTime(1050,t+dur);lfo.frequency.value=28;lg.gain.value=40;
+    lfo.connect(lg).connect(o.frequency);o.connect(g).connect(this.sfx);o.start(t);lfo.start(t);o.stop(t+dur+.03);lfo.stop(t+dur+.03);},
   fanfare(tier){ // gacha: rarer = longer and higher
     const n=[[523,659,784],[523,659,784,1047],[523,659,784,1047,1319],[392,523,659,784,1047,1319,1568],[392,523,659,784,1047,1319,1568,2093]][tier]||[523,659,784];
     n.forEach((f,i)=>this.tone(f,.22,'square',.09,i*.09));if(tier>=3){this.tone(262,1.2,'triangle',.2,0);n.forEach((f,i)=>this.tone(f*1.5,.4,'triangle',.05,.6+i*.05));}},
@@ -1290,6 +1294,7 @@ function renderGarage(){
   const gs=document.getElementById('gskins');gs.textContent='';
   for(const s of [...SKINS,...PROF.skins.filter(id=>id.startsWith('wk-')).map(skinOf)]){const own=PROF.skins.includes(s.id);
     cell.need=s.need;gs.append(cell({f:bear?'sedan':PROF.eq.f,s:s.id},s.n,s.r,own,!bear&&sk===s.id,()=>{Snd.click();PROF.eq.s=s.id;if(PROF.eq.f==='bear')PROF.eq.f='sedan';saveProf();renderGarage();}));}
+  {const own=PROF.forms.includes('bear');cell.need=null;gs.append(cell({f:'bear'},'곰 (형태+스킨)','유일',own,bear,()=>{Snd.click();PROF.eq.f='bear';saveProf();renderGarage();}));} // the bear drops from both pools, so it shows in both lists
   document.getElementById('gfn').textContent=`${PROF.forms.length}/${FORMS.length}`;
   document.getElementById('gsn').textContent=`${PROF.skins.length}/${SKINS.length} · ★${totalStars()}`;
   const gd=document.getElementById('gdeco');gd.textContent='';PROF.deco=PROF.deco||[];
@@ -1307,9 +1312,9 @@ function renderGarage(){
 }
 function rateTable(){
   const row=(k,name)=>`<tr><th>${name}</th>${ORDER.map(tn=>{const r=RATES[k].find(x=>x[0]===tn);if(!r)return'<td>-</td>';
-    const cnt=tn==='유일'?1:(k==='form'?FORMS:k==='deco'?DECOS:SKINS).filter(x=>x.r===tn).length;return`<td>${r[1]}%<small>${cnt}종</small></td>`;}).join('')}</tr>`;
+    const cnt=tn==='유일'?1:(k==='form'?FORMS:k==='deco'?DECOS:SKINS).filter(x=>x.r===tn).length;return`<td>${r[1]}%<small>${tn==='유일'?'🐻 곰':cnt+'종'}</small></td>`;}).join('')}</tr>`;
   return `<table class="rates"><tr><th></th>${ORDER.map(tn=>`<th style="color:${TIER[tn]}">${tn}</th>`).join('')}</tr>${row('form','형태')}${row('skin','스킨')}${row('deco','장식')}</table>
-  <p>같은 등급 안에서는 모두 같은 확률 · 곰은 딱 하나뿐이라 얻으면 더 안 나와요 · 10+1회는 영웅 이상 1개 보장<br>중복이면 🧩 조각 1개 + 코인 환급: 일반 ${REFUND.일반} · 희귀 ${REFUND.희귀} · 영웅 ${REFUND.영웅} · 전설 ${REFUND.전설}</p>`;
+  <p>🐻 유일 = 곰 하나뿐 · 형태 뽑기와 스킨 뽑기 둘 다에서 0.3% · 형태+스킨이 한 몸이라 형태·스킨 도감 양쪽에 보여요 · 얻으면 더 안 나와요<br>같은 등급 안에서는 모두 같은 확률 · 10+1회는 영웅 이상 1개 보장<br>중복이면 🧩 조각 1개 + 코인 환급: 일반 ${REFUND.일반} · 희귀 ${REFUND.희귀} · 영웅 ${REFUND.영웅} · 전설 ${REFUND.전설}</p>`;
 }
 // ---------- gacha reveal animation (skippable) ----------
 const gEl=()=>document.getElementById('gacha');let gTok=0,gRes=null;
@@ -1434,12 +1439,17 @@ const g=$('mapgrid');g.textContent='';
   LEVELS.forEach((lv,i)=>{const b=document.createElement('button');b.className='mcell'+(i===pickMap?' on':'');const open=unlocked(i);b.disabled=!open;
     const st=stars(i);b.innerHTML=`<b>${i+1}</b>${open?lv.name:'🔒'}<i>${open?'★'.repeat(st)+'☆'.repeat(3-st):''}</i>`;
     const sel=()=>{if(pickMap!==i){pickMap=i;g.querySelectorAll('.mcell').forEach((c,k)=>c.classList.toggle('on',k===i));showPick();}};
-    b.addEventListener('focus',sel);b.addEventListener('mouseenter',sel);b.addEventListener('click',()=>{Snd.click();sel();});g.append(b);});
+    // mouse: hovering only previews (the start button sits above the grid, so passing cells must not change the pick); click picks, clicking the picked map starts it
+    let wasPicked=false;b.addEventListener('pointerdown',()=>{wasPicked=pickMap===i;});
+    b.addEventListener('mouseenter',()=>showPick(i));
+    b.addEventListener('focus',()=>{if(!b.matches(':hover'))sel();}); // pad / keyboard moves select right away
+    b.addEventListener('click',()=>{Snd.click();if(wasPicked){Snd.init();playMap(i);}else sel();wasPicked=false;});g.append(b);});
+  g.onmouseleave=()=>showPick();
   showPick();
 }
-function showPick(){const lv=LEVELS[pickMap],k=pickMap+':'+diff;$('mpname').textContent=`${pickMap+1}. ${lv.name}`;
+function showPick(i=pickMap){const lv=LEVELS[i],k=i+':'+diff;$('mpname').textContent=`${i+1}. ${lv.name}${i===pickMap?'':' (미리보기 · 클릭해서 선택)'}`;
   $('mpmeta').textContent=`차 ${lv.cars.length}대 · 차당 ${(lv.time*D.timeMul).toFixed(0)}초 · 최고 ${(PROF.best||{})[k]||0}점`;
-  $('mpstar').innerHTML=`<b>★</b> 클리어 · <b>★★</b> 재시도 1번 이하 · <b>★★★</b> 재시도 없이 + 차마다 평균 ${(STAR3*lv.time*D.timeMul).toFixed(1)}초 이상 남기기`;pv.lv=lv;pv.t0=performance.now();}
+  $('mpstar').innerHTML=`<b>★</b> 클리어 · <b>★★</b> 재시도 1번 이하 · <b>★★★</b> 재시도 없이 + 차마다 평균 ${(STAR3*lv.time*D.timeMul).toFixed(1)}초 이상 남기기`;if(pv.lv!==lv){pv.lv=lv;pv.t0=performance.now();}}
 function loadLevel(i){li=i;L=i<0?DAILY:LEVELS[i];ci=0;ghosts=[];coins=mode==='single'?genCoins(L):null;coinGain=0;menu.hidden=true;cv.focus();startRound();camY=camTarget();}
 function spot(j){const [x,y,a,w=62,h=34]=L.cars[j].p,add=L.inf?0:D.spotAdd;return[x,y,a,w+add,h+add];}
 const timeLimit=()=>L.time*(L.inf?1:D.timeMul); // 무한 주차: same time at every difficulty
